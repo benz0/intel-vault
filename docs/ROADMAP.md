@@ -4,8 +4,8 @@
 
 - Core: rules, workflows (resume, wrap, intake, prep, brief, internal, review-prep), templates
 - CSE pack: account structure, customer-success platform rules, risk, cs-update, build-vault
-- Adapters: Claude skill, IBM Bob (generated `.bob/`), any-LLM starter prompt
-- Scripts: new-vault, update-vault, sync-bob, check-vault, sheet-to-md
+- Adapters: Claude skill, any-LLM starter prompt, and a generic exporter for tools that only read their own rules folder
+- Scripts: new-vault, update-vault, export-agent-files, check-vault, sheet-to-md
 
 ## Next
 
@@ -22,4 +22,4 @@
 ## Open design questions
 
 - Should `AGENTS.md` be renamed for tools that look for other entry files (for example `CLAUDE.md`, `.github/copilot-instructions.md`)? Today each adapter points its tool at `AGENTS.md`.
-- Bob generates wrapper skills for commands. Confirm the generated command and skill sharing a name behaves the same as the hand-built setup did.
+- Test `export-agent-files.py` output against each tool that needs it before calling that tool supported.

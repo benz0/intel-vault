@@ -3,13 +3,14 @@
 Hygiene check for vault files. Reports real counts so nobody has to trust "clean".
 
 Checks every .md file under the paths given (files or folders):
-  1. Forbidden characters from `forbidden_chars` in _system/config.md (e.g. U+2014)
+  1. Forbidden characters from `forbidden_chars` in _system/config.md (e.g. U+2014),
+     ignoring exact strings listed in `forbidden_chars_allow` (e.g. a signature line)
   2. Wikilinks that resolve to no file
   3. Bare wikilinks that match more than one file (ambiguous)
   4. Links into a people folder whose display alias differs from the file name
      (a likely alias/target mismatch; review by hand)
 
-Skips fenced code blocks and _system/. Exit code 1 if anything is found.
+Skips fenced code blocks, hidden folders, _system/, and any export_*_dir folders. Exit code 1 if anything is found.
 
 Usage:
     python3 _system/scripts/check-vault.py [paths...]      (default: whole vault)
@@ -24,10 +25,10 @@ import vaultlib  # noqa: E402
 
 LINK = re.compile(r"!?\[\[([^\]]+?)\]\]")
 PEOPLE_DIRS = {"stakeholders", "people", "team", "customer", "internal"}
-SKIP_DIRS = {"_system", ".bob", ".git", ".obsidian", "node_modules"}
+SKIP_DIRS = {"_system", ".git", ".obsidian", "node_modules"}
 
 
-def md_files(paths, root):
+def md_files(paths, root, skip_rel=()):
     for p in paths:
         p = os.path.abspath(p)
         if os.path.isfile(p):
@@ -36,7 +37,8 @@ def md_files(paths, root):
             continue
         for d, subdirs, files in os.walk(p):
             rel = os.path.relpath(d, root)
-            subdirs[:] = [s for s in subdirs if s not in SKIP_DIRS and not (rel == "." and s.startswith("."))]
+            subdirs[:] = [s for s in subdirs if s not in SKIP_DIRS and not s.startswith(".")
+                          and os.path.normpath(os.path.join(rel, s)) not in skip_rel]
             for f in files:
                 if f.endswith(".md"):
                     yield os.path.join(d, f)
@@ -46,7 +48,7 @@ def build_index(root):
     by_name = {}
     paths = set()
     for d, subdirs, files in os.walk(root):
-        subdirs[:] = [s for s in subdirs if s not in {".git", ".obsidian", ".bob"}]
+        subdirs[:] = [s for s in subdirs if not s.startswith(".")]
         for f in files:
             full = os.path.join(d, f)
             rel = os.path.relpath(full, root).replace(os.sep, "/")
@@ -100,17 +102,21 @@ def main():
         sys.exit(2)
     cfg = vaultlib.read_config(root)
     bad_chars = vaultlib.forbidden_chars(cfg)
+    allowed = vaultlib.allowed_strings(cfg)
+    skip_rel = {os.path.normpath(d) for d in vaultlib.export_dirs(cfg)}
     by_name, paths = build_index(root)
     targets = args or [root]
 
     counts = {"files": 0, "links": 0, "forbidden": 0, "missing": 0, "ambiguous": 0, "alias": 0}
     findings = []
-    for f in md_files(targets, root):
+    for f in md_files(targets, root, skip_rel):
         counts["files"] += 1
         rel = os.path.relpath(f, root)
         with open(f, encoding="utf-8", errors="replace") as fh:
             raw = fh.read()
         for n, line in enumerate(raw.splitlines(), 1):
+            for ok in allowed:
+                line = line.replace(ok, "")
             for ch in bad_chars:
                 c = line.count(ch)
                 if c:

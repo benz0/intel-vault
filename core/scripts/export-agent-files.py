@@ -1,26 +1,27 @@
 #!/usr/bin/env python3
 """
-Generate IBM Bob's .bob/ folder from _system/.
+Export copies of the spec for AI tools that only read their own folders.
 
-Bob auto-loads .bob/rules/ on every message and offers .bob/skills/ and
-.bob/commands/. _system/ is the source of truth; this script writes copies.
+Some tools load rules, skills, or slash commands from a tool-specific folder
+instead of reading _system/. _system/ stays the source of truth; this script
+writes copies to the folders named in _system/config.md:
 
-What it writes (every file starts with a GENERATED banner):
-  .bob/rules/00-readme-for-ai.md      _system/README-for-AI.md
-  .bob/rules/01-config.md             _system/config.md
-  .bob/rules/NN-{origin}-{name}.md    every rule: core, then packs, then local
-  .bob/skills/{name}/SKILL.md         every workflow (local overrides pack overrides core)
-  .bob/commands/{name}.md             one per workflow name and one-word alias
+  export_rules_dir:     {dir}/00-readme-for-ai.md, {dir}/01-config.md,
+                        {dir}/NN-{origin}-{name}.md for every rule (core, packs, local)
+  export_skills_dir:    {dir}/{name}/SKILL.md for every workflow (local > pack > core)
+  export_commands_dir:  {dir}/{name}.md for every workflow name and one-word alias
+
+Leave a key blank to skip that export. Every exported file carries a GENERATED banner.
 
 Safety:
   - Never overwrites a file that lacks the GENERATED banner. Reports it as a conflict.
   - Removes generated files whose source no longer exists, if the filesystem allows deletes;
     otherwise lists them.
-  - Leaves everything else in .bob/ alone (custom_modes.yaml, your own skills).
+  - Leaves every other file in those folders alone.
 
 Usage:
-    python3 _system/scripts/sync-bob.py [vault]          write
-    python3 _system/scripts/sync-bob.py --dry-run [vault]
+    python3 _system/scripts/export-agent-files.py [vault]
+    python3 _system/scripts/export-agent-files.py --dry-run [vault]
 """
 import os
 import re
@@ -58,7 +59,11 @@ def main():
         print("No vault found (need _system/config.md).")
         sys.exit(2)
     cfg = vaultlib.read_config(vault)
-    bob = os.path.join(vault, ".bob")
+    targets = {k: cfg.get(f"export_{k}_dir") for k in ("rules", "skills", "commands")}
+    targets = {k: os.path.join(vault, v) for k, v in targets.items() if isinstance(v, str) and v}
+    if not targets:
+        print("Nothing to export: set export_rules_dir, export_skills_dir, or export_commands_dir in _system/config.md.")
+        return
     planned = {}  # dest path -> (content, source rel)
 
     def rel(p):
@@ -71,15 +76,16 @@ def main():
         planned[dest] = with_banner(text, rel(src_path))
 
     sysdir = os.path.join(vault, "_system")
-    add(os.path.join(bob, "rules", "00-readme-for-ai.md"), os.path.join(sysdir, "README-for-AI.md"))
-    add(os.path.join(bob, "rules", "01-config.md"), os.path.join(sysdir, "config.md"))
-
-    # Rules: keep every file, in layer order. Name = NN-origin-rest.
-    for origin, path in vaultlib.layered(vault, "rules", cfg):
-        fname = os.path.basename(path)
-        m = re.match(r"(\d+)-(.*)", fname)
-        num, rest = (m.group(1), m.group(2)) if m else ("90", fname)
-        add(os.path.join(bob, "rules", f"{num}-{origin}-{rest}"), path)
+    if "rules" in targets:
+        rd = targets["rules"]
+        add(os.path.join(rd, "00-readme-for-ai.md"), os.path.join(sysdir, "README-for-AI.md"))
+        add(os.path.join(rd, "01-config.md"), os.path.join(sysdir, "config.md"))
+        # Rules: keep every file, in layer order. Name = NN-origin-rest.
+        for origin, path in vaultlib.layered(vault, "rules", cfg):
+            fname = os.path.basename(path)
+            m = re.match(r"(\d+)-(.*)", fname)
+            num, rest = (m.group(1), m.group(2)) if m else ("90", fname)
+            add(os.path.join(rd, f"{num}-{origin}-{rest}"), path)
 
     # Workflows: last layer wins per name.
     workflows = {}
@@ -89,7 +95,10 @@ def main():
         workflows[name] = (path, fm)
 
     for name, (path, fm) in sorted(workflows.items()):
-        add(os.path.join(bob, "skills", name, "SKILL.md"), path)
+        if "skills" in targets:
+            add(os.path.join(targets["skills"], name, "SKILL.md"), path)
+        if "commands" not in targets:
+            continue
         desc = fm.get("description", "").replace('"', "'")
         hint = fm.get("argument-hint", "")
         cmd_names = [name] + [a for a in vaultlib.as_list(fm.get("aliases")) if re.fullmatch(r"[a-z0-9\-]+", a)]
@@ -97,7 +106,7 @@ def main():
             body = (f"---\ndescription: \"{desc}\"\nargument-hint: \"{hint}\"\n---\n"
                     f"Use the `{name}` skill. Arguments: $1 $2 $3\n\n"
                     f"Read `_system/README-for-AI.md` if you have not this session, and follow the workflow exactly.\n")
-            planned[os.path.join(bob, "commands", f"{cmd}.md")] = with_banner(body, rel(path))
+            planned[os.path.join(targets["commands"], f"{cmd}.md")] = with_banner(body, rel(path))
 
     written, unchanged, conflicts = [], [], []
     for dest, content in sorted(planned.items()):
@@ -116,8 +125,7 @@ def main():
                 fh.write(content)
 
     stale, stale_left = [], []
-    for sub in ("rules", "skills", "commands"):
-        d = os.path.join(bob, sub)
+    for d in targets.values():
         if not os.path.isdir(d):
             continue
         for cur, _, files in os.walk(d):
@@ -145,19 +153,19 @@ def main():
             print(f"  ! {p}")
     if conflicts:
         print(f"CONFLICTS: {len(conflicts)} files exist without the GENERATED banner and were left alone.")
-        print("Move them into _system/local/ (rules or workflows), delete the .bob copy, and re-run:")
+        print("Move them into _system/local/ (rules or workflows), delete the exported copy, and re-run:")
         for p in conflicts:
             print(f"  ? {p}")
         sys.exit(1)
-    rules_dir = os.path.join(bob, "rules")
-    if os.path.isdir(rules_dir):
+    rules_dir = targets.get("rules")
+    if rules_dir and os.path.isdir(rules_dir):
         hand = [f for f in sorted(os.listdir(rules_dir))
                 if f.endswith(".md") and not is_generated(os.path.join(rules_dir, f))]
         if hand:
-            print("Note: hand-written rules in .bob/rules/ that other AI tools will not see. "
+            print(f"Note: hand-written rules in {rel(rules_dir)}/ that other AI tools will not see. "
                   "Move them to _system/local/rules/ so every agent follows them:")
             for f in hand:
-                print(f"  * .bob/rules/{f}")
+                print(f"  * {rel(rules_dir)}/{f}")
 
 
 if __name__ == "__main__":

@@ -172,7 +172,7 @@ The file named in `task_list` is the single source of truth for the owner's task
 
 Before reporting work complete, check every file you wrote or edited:
 
-1. **Forbidden characters** named in the owner's local rules (for example a ban on em dashes). Never replace characters inside `[[ ]]`; that silently breaks the link.
+1. **Forbidden characters** listed in `forbidden_chars` in config (for example a ban on em dashes), except exact strings listed in `forbidden_chars_allow` (for example a signature). Never replace characters inside `[[ ]]`; that silently breaks the link.
 2. **Every wikilink resolves** to a file that exists.
 3. **Alias matches target:** in `[[File|Display]]`, the file is the thing the display text names.
 

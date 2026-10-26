@@ -1,7 +1,7 @@
 ---
 type: session
 date: YYYY-MM-DD
-agent:                # claude | bob | copilot | ...
+agent:                # claude | copilot | chatgpt | ...
 subjects: []          # e.g. [Acme, Globex]
 topics: []
 ---

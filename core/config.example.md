@@ -10,9 +10,10 @@ manager:               # who the owner reports to
 timezone:              # IANA name, e.g. America/New_York. All times are stated in this zone first.
 
 forbidden_chars: []    # characters that must never appear in vault files, e.g. [U+2014] for em dashes
+forbidden_chars_allow: []  # exact strings exempt from that check, e.g. a signature line
 
 packs: []              # installed packs, e.g. [cse]
-agents: []             # AI tools that work in this vault, e.g. [claude, bob]
+agents: []             # AI tools that work in this vault, e.g. [claude, copilot]
 
 # Where things live, relative to the vault root
 task_list: Open Actions.md
@@ -26,6 +27,12 @@ drafts_dir: Drafts
 # Data policy: the short version of what your employer allows in AI tools.
 # Rules in _system/rules/20-data-handling.md apply on top of this.
 data_policy:           # e.g. "No customer account numbers. No employee performance details."
+
+# Optional: for an AI tool that only reads rules, skills, or commands from its own folder.
+# _system/scripts/export-agent-files.py writes copies there. Leave blank if unused.
+export_rules_dir:
+export_skills_dir:
+export_commands_dir:
 ---
 
 # Vault configuration

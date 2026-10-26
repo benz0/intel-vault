@@ -1,11 +1,11 @@
 # When more than one AI works this vault
 
-The owner may use several AI tools on the same files (for example Claude and IBM Bob). They all follow this spec. The tools are listed in `agents` in `_system/config.md`.
+The owner may use several AI tools on the same files (for example Claude in one app and a different assistant in another). They all follow this spec. The tools are listed in `agents` in `_system/config.md`.
 
 - **One agent per subject at a time.** Never run two agents on the same subject in parallel.
 - **The disk is authoritative.** Re-read a file immediately before editing it; another agent may have changed it since you last looked.
 - **Edit in place.** Never rebuild a file from earlier tool output, which may be truncated or stale.
-- **Say which agent wrote what.** Session logs carry `agent: {tool name}` in frontmatter, lowercase (`claude`, `bob`, `copilot`).
+- **Say which agent wrote what.** Session logs carry `agent: {tool name}` in frontmatter, lowercase (`claude`, `copilot`, `chatgpt`).
 
 ## Recent-activity check
 

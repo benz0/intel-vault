@@ -100,6 +100,16 @@ def forbidden_chars(cfg):
     return out
 
 
+def allowed_strings(cfg):
+    """forbidden_chars_allow: exact strings exempt from the forbidden-character check."""
+    return [s for s in as_list(cfg.get("forbidden_chars_allow")) if s]
+
+
+def export_dirs(cfg):
+    return [v for v in (cfg.get("export_rules_dir"), cfg.get("export_skills_dir"),
+                        cfg.get("export_commands_dir")) if isinstance(v, str) and v]
+
+
 def layered(vault, sub, cfg=None):
     """Files from core, then each installed pack, then local, for a subfolder (rules or workflows).
     Returns list of (origin, path). Later entries override earlier ones with the same filename."""

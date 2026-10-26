@@ -13,7 +13,7 @@ Options:
     --org "Acme Corp"
     --manager "Pat Smith"
     --tz America/New_York     IANA timezone
-    --agents claude,bob       AI tools that will work in the vault
+    --agents claude,copilot   AI tools that will work in the vault
     --no-em-dash              add U+2014 to forbidden_chars
 
 The destination may exist but must not already contain _system/.
@@ -176,10 +176,9 @@ def main():
     print(f"  packs: {', '.join(packs) or 'none'}   agents: {', '.join(agents)}")
     print("Next:")
     print("  1. Fill in _system/config.md and _system/local/rules/10-owner.md")
-    if "bob" in agents:
-        print("  2. Run: python3 _system/scripts/sync-bob.py   (generates .bob/ for IBM Bob)")
-    if "claude" in agents:
-        print("  -  Claude: install the skill in _system/adapters/claude/intel-vault/ and attach this folder")
+    print("  2. Connect your AI: see _system/adapters/ (Claude skill, or the any-LLM prompt)")
+    print("     If your tool only reads its own rules folder, set export_*_dir in config.md and run")
+    print("     python3 _system/scripts/export-agent-files.py")
     print("  Then say 'resume' to your AI.")
 
 

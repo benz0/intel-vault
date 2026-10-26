@@ -6,7 +6,7 @@ Replaces core rules, workflows, templates, scripts, adapters, and the files of
 every pack listed in config `packs`. Never touches:
   - _system/config.md
   - _system/local/          (your own rules and workflows)
-  - anything outside _system/ (except .bob/, via sync-bob.py, if bob is in agents)
+  - anything outside _system/ (except export folders, via export-agent-files.py, if configured)
 
 Usage:
     python3 scripts/update-vault.py <vault> [--dry-run] [--add-pack NAME]
@@ -125,9 +125,9 @@ def main():
             fh.write("\n".join(lines) + "\n")
         print(f"  packs in config: {', '.join(packs)}  (add the pack's config keys from its pack.md)")
 
-    if "bob" in vaultlib.as_list(cfg.get("agents")):
-        print("Running sync-bob.py ...")
-        subprocess.call([sys.executable, os.path.join(sysdir, "scripts", "sync-bob.py"), vault])
+    if vaultlib.export_dirs(cfg):
+        print("Running export-agent-files.py ...")
+        subprocess.call([sys.executable, os.path.join(sysdir, "scripts", "export-agent-files.py"), vault])
 
 
 if __name__ == "__main__":

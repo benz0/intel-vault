@@ -30,6 +30,6 @@ external system without my yes for that specific action.
 ## Tool notes
 
 - **Claude (desktop app, folder access):** install `adapters/claude/intel-vault` as a skill instead of pasting the prompt. Attach only the vault folder.
-- **IBM Bob:** see `adapters/bob/README.md`. Bob reads generated copies in `.bob/`.
+- **Tools that only load rules or commands from their own folder:** set `export_rules_dir`, `export_skills_dir`, and `export_commands_dir` in `_system/config.md` to that tool's folders and run `python3 _system/scripts/export-agent-files.py`. Re-run it after every change to `_system/`. Never edit the exported copies; put your own rules in `_system/local/` instead.
 - **Microsoft 365 Copilot:** works mainly with files you attach or that live in OneDrive or SharePoint. Whether it can reach a folder on your laptop's local disk depends on your version and your employer's setup, so test it before relying on it. Treat it as read-only unless you have confirmed it can write files.
 - **Meeting transcripts that live only in Teams or another tool:** copy the transcript or recap into `_Inbox/` (or paste it into the conversation) and run `intake`.

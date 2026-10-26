@@ -1,6 +1,6 @@
 # Instructions for any AI assistant working in this vault
 
-This folder (`_system/`) is the operating spec for an intel vault: a folder of plain markdown files that is the owner's system of record for the people, accounts, and work they track. The spec is written for **any** AI assistant (Claude, IBM Bob, Copilot, ChatGPT, or whatever comes next). It does not depend on any one tool's memory, so the work survives a change of tool.
+This folder (`_system/`) is the operating spec for an intel vault: a folder of plain markdown files that is the owner's system of record for the people, accounts, and work they track. The spec is written for **any** AI assistant (Claude, Copilot, ChatGPT, or whatever comes next). It does not depend on any one tool's memory, so the work survives a change of tool.
 
 **If you are an AI and you are reading this, follow it.** The owner should never have to restate these rules.
 
@@ -16,7 +16,7 @@ This folder (`_system/`) is the operating spec for an intel vault: a folder of p
    3. `_system/local/rules/*.md` (the owner's own overrides; always win)
 4. **Read nothing else yet.** Load workflows and subject files only when the task needs them.
 
-If your tool loads rules automatically (IBM Bob loads `.bob/rules/`), those generated copies are the same content. See `_system/adapters/`.
+Some tools load rules from their own folder instead. If `export_rules_dir` is set in config, that folder holds generated copies of these same files (made by `_system/scripts/export-agent-files.py`). Never edit the copies.
 
 ---
 
@@ -52,7 +52,7 @@ Packs add more (for example the CSE pack adds `risk`, `cs-update`, `build-vault`
 
 The spec says "run", "search", "check the modification time". Use whatever your tool offers:
 
-- **Shell access** (Claude with a linked computer, Bob's Execute tool, Claude Code): run the command or script.
+- **Shell access** (a linked computer, a terminal tool, a coding agent): run the command or script.
 - **File access but no shell:** do the check by reading files, and say that you checked by hand.
 - **Chat only, no file access** (a plain chat window): you cannot write the vault. Produce each file's full new content, tell the owner the exact path to save it to, and never claim a file was written.
 
