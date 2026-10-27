@@ -1,7 +1,7 @@
 __pycache__/
 *.pyc
 .DS_Store
-# Never commit a real vault into this repo
-_Sessions/
-_Internal/
-Accounts/
+# Never commit a real vault into this repo. examples/ holds fictional data only.
+/_Sessions/
+/_Internal/
+/Accounts/

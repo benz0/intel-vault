@@ -1,49 +1,81 @@
 # intel-vault
 
-A portable intelligence-tracking system: a folder of plain markdown files that is your system of record for the people, accounts, and work you track, plus a spec that any AI assistant can follow to keep it current.
+**An AI-maintained notebook for your accounts.** Every meeting, email, and commitment lands in one folder of plain notes on your own computer. Your AI assistant keeps those notes current, preps you for calls, and reminds you what you owe people.
 
-- **Agnostic of the AI.** The rules live in the vault as markdown, not in one tool's memory. Claude, Copilot, ChatGPT, or a plain chat window can all work the same vault. Switch tools and nothing is lost.
-- **Agnostic of the job.** A small core handles sessions, one task list, sources, meetings, people, and your accomplishments. **Packs** add what a role needs (accounts and renewals for customer success, a team for people managers).
-- **Built for real work.** It came out of months of daily use by a Customer Success Engineer, and every rule exists because something went wrong without it.
+Built by a Customer Success Engineer, from months of running a real book of enterprise accounts with it.
 
-> **Status: v0.1.** Core, the CSE pack, the Claude skill, and the any-LLM prompt are in. SE, people-manager, and personal-life packs are next. See [ROADMAP](docs/ROADMAP.md).
+> **Status: v0.1.** Ready for Customer Success Engineers. SE and people-manager versions are in progress. See the [roadmap](docs/ROADMAP.md).
 
 ---
+
+## The problem it solves
+
+If you run a book of accounts, you already know these:
+
+- **Context is scattered.** The real story of an account is spread across meeting transcripts, email threads, Slack, support cases, and your memory.
+- **Commitments leak.** "I'll send that over Friday" gets said on a call and lives nowhere.
+- **Every AI chat starts from zero.** You re-explain the account every time, and the assistant forgets it when the window closes.
+- **The CS platform lags reality.** Things happen in meetings weeks before they reach Gainsight (or whatever you use), and leadership reads the platform.
+- **Review time means reconstruction.** You spend a weekend digging through email to remember what you accomplished.
+
+## What it does for a CSE
+
+| Moment | You say | You get |
+|---|---|---|
+| **Start of the day** | `resume` | Three lines: what's in flight, what's overdue (your own commitments first), what needs a decision today |
+| **After a customer call** | `intake Acme` + the transcript | The raw transcript saved untouched, a meeting record written, and a "what changed" summary: new risks, new stakeholders, commitments made, anything that contradicts what you knew. It waits for your OK, then updates every affected file and your task list |
+| **Before a call or QBR** | `prep Acme QBR` | A one-page brief: the one thing you must leave with, who's in the room and what they care about, what you owe them, landmines, questions to ask |
+| **Before a risk review** | `risk Acme` | A strict scorecard against your risk signals, plus a "credible plan" test on every open risk, and the questions your manager will ask |
+| **CS platform upkeep** | `gainsight Acme` | A timeline entry, sentiment change, or CTA drafted for you to paste. **It never touches the platform itself** |
+| **Monday morning** | `brief` | Renewals inside 120 days, accounts gone quiet, what's in the vault but not yet in the platform |
+| **End of the day** | `wrap` | A session log, proposed status and task updates, and a prompt to log anything worth a mention at review time |
+| **Review season** | `review-prep FY26` | Your accomplishments with dates and numbers, sourced, plus a list of where the evidence is thin |
+
+No command is required. Plain English works; the commands just load a specific checklist.
+
+## See it before you set it up
+
+[`examples/demo-vault/`](examples/demo-vault/) is a small working vault for a fictional account. Start with:
+
+- [`AGENTS.md`](examples/demo-vault/AGENTS.md): the one-screen view of every account
+- [`Open Actions.md`](examples/demo-vault/Open%20Actions.md): one task list, every item with a source and date
+- [The meeting record](examples/demo-vault/Accounts/Bluefin%20Logistics/Vault%20Enterprise/Meetings/2026-10-20%20Bluefin%20Upgrade%20Sync.md) written from [this transcript](examples/demo-vault/Accounts/Bluefin%20Logistics/Sources/2026-10-20%20Upgrade%20Sync%20Transcript.md)
+- [A call prep brief](examples/demo-vault/Accounts/Bluefin%20Logistics/_Prep/2026-10-27%20Bluefin%20Cadence%20Prep.md)
+- [A session log](examples/demo-vault/_Sessions/2026-10-20-bluefin-upgrade-sync.md) with a drafted timeline entry
 
 ## How it works
 
-```
-your-vault/
-├── AGENTS.md            what's in flight right now (every AI reads this first)
-├── Open Actions.md      your one and only task list
-├── _Sessions/           a log per working session, so the next one can resume
-├── _Internal/           your own work: 1:1s, accomplishments, praise received
-├── Accounts/            subjects you track (folder names come from the pack)
-└── _system/             the spec: rules, workflows, templates, scripts
-    ├── rules/           how every AI must behave here
-    ├── workflows/       resume, wrap, intake, prep, brief, internal, review-prep
-    ├── packs/cse/       role-specific rules and workflows
-    ├── local/           YOUR rules and workflows (never overwritten by updates)
-    └── config.md        who you are, your timezone, where things live
+```mermaid
+flowchart LR
+    S["Transcripts, email,<br/>Slack, notes"] -->|intake| V[("Your vault<br/>plain markdown<br/>on your machine")]
+    V -->|resume, prep, brief, risk| Y["You"]
+    Y -->|approve| V
+    V -->|drafts only| P["CS platform<br/>(you paste)"]
 ```
 
-**The daily rhythm:**
+- **Your notes are plain files.** Open them in any editor, or in Obsidian for links and graphs. Nothing is locked in a vendor.
+- **The rules travel with the notes.** A `_system/` folder in the vault tells any AI how to behave. Change AI tools and you lose nothing.
+- **You stay in control.** The AI shows you what it wants to change and waits. It never sends, submits, or logs anything outside the vault without your yes.
 
-| Say | When | What happens |
-|---|---|---|
-| `resume` | Start of a session | Reads the last 3 session summaries and your task list, tells you what's in flight and overdue |
-| `intake Acme` | After a meeting | Saves the raw transcript, writes the meeting record, shows what changed, waits for your OK, then updates everything it touches |
-| `prep Acme QBR` | Before a meeting | A one-page brief: the one thing, who's in the room, what you owe, landmines |
-| `wrap` | End of a session | Writes the session log, proposes task-list and status updates, asks what belongs in your accomplishments |
-| `brief` | Weekly | What needs a decision, what's overdue, what's gone quiet |
-| `internal 1-1` | After a 1:1 | Logs it, captures your commitments and any praise |
-| `review-prep FY26` | Review season | Assembles evidence from your accomplishments log |
+## Guardrails that come built in
 
-No command is required. Plain language works; commands load a specific checklist.
+Every one of these exists because an AI got it wrong without it:
+
+- **No fabrication.** No invented ticket numbers, links, names, or dates. "I don't know" is an acceptable answer.
+- **Sources are never edited.** The original transcript is always there to check against.
+- **Every claim is tagged** Confirmed, Assumption, Historical, or Unknown, with its source.
+- **Time discipline.** A past date is never written as upcoming. Stale accounts are called out as stale.
+- **Names are checked against the strongest source.** Transcripts misspell names and confuse two people with the same first name; the rules catch both.
+- **One task list.** Never a second one hiding in a meeting note.
+- **Real counts, not "looks clean."** A checker script counts broken links and banned characters, because AI tools report clean when it isn't.
+
+## Works with your AI tool
+
+Claude (desktop app with folder access) is the most tested. Any assistant that can read a folder can follow the same rules. A chat-only tool can still use it: it gives you file contents to save instead of writing them. See [adapters/any-llm.md](adapters/any-llm.md).
 
 ---
 
-## Quickstart
+## Quickstart (about 15 minutes)
 
 **Needs:** Python 3 (built into macOS and most Linux; on Windows install from python.org) and an AI tool that can read your vault folder.
 
@@ -124,4 +156,4 @@ Counts forbidden characters (minus any exact strings you exempt in `forbidden_ch
 
 ## Credits
 
-Account file templates adapted from Kwadwo Eck's account management assistant prompt. The session-memory loop is adapted from the Claude Code + Obsidian pattern shared on r/ClaudeAI.
+Account file templates adapted from Kwadwo Eck's account management assistant prompt, the starting point for this whole project. The session-memory loop is adapted from the Claude Code + Obsidian pattern shared on r/ClaudeAI.
