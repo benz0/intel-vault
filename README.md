@@ -187,7 +187,7 @@ python3 _system/scripts/check-vault.py            # whole vault
 python3 _system/scripts/check-vault.py Accounts/Acme
 ```
 
-Counts forbidden characters (minus any exact strings you exempt in `forbidden_chars_allow`, such as a signature), broken wikilinks, ambiguous bare links, and likely alias mismatches. AI tools report "clean" when it isn't; this gives you a number.
+Counts forbidden characters (minus any exact strings you exempt in `forbidden_chars_allow`, such as a signature), broken wikilinks, ambiguous bare links, likely alias mismatches, and saved emails left in `_Inbox/` after their markdown copy was filed. AI tools report "clean" when it isn't; this gives you a number.
 
 `_system/scripts/sheet-to-md.py` converts a spreadsheet into a disposable markdown cache (needs `openpyxl` for .xlsx).
 

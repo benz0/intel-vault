@@ -16,6 +16,9 @@ Builds throwaway vaults in a temp folder (nothing outside it is touched) and che
      "# Original file:" line); a new email alongside is still converted; --force redoes it.
   7. check-vault.py catches a planted forbidden character and a broken link, resolves
      relative and .md links, and skips raw Sources/ for characters.
+     7b. It also reports a .eml or .msg left in _Inbox/ whose markdown copy is already in a
+     Sources/ folder (found by the "# Original file:" line), and does not flag an email
+     whose copy is still waiting in the inbox.
   8. The repo itself: no forbidden characters in tracked or new text files (except the
      signature divider), and none of the words in .git/info/banned-words, if that
      file exists. Keep that file out of the repo; it never gets committed.
@@ -175,6 +178,37 @@ def main():
         code, out = run(os.path.join(v, "_system", "scripts", "check-vault.py"), "--quiet", acct)
         ok = code == 1 and "Forbidden characters: 1 " in out and "Broken links: 1 " in out
         check("7. checker finds 1 character and 1 broken link, resolves the rest", ok, out[-300:])
+
+        # 7b. leftover emails: original still in _Inbox/ after its markdown copy was filed
+        shutil.rmtree(acct)  # drop check 7's planted problems so the exit code reflects only leftovers
+        code0, out0 = run(os.path.join(v, "_system", "scripts", "check-vault.py"), "--quiet", v)
+        checker = os.path.join(v, "_system", "scripts", "check-vault.py")
+        inbox_v = os.path.join(v, "_Inbox")
+        sources = os.path.join(v, "Accounts", "Beta", "Sources")
+        write(os.path.join(inbox_v, "filed.eml"),
+              "From: Pat Doe <pat@example.com>\nSubject: Filed thread\n"
+              "Date: Mon, 26 Oct 2026 10:00:00 -0400\nContent-Type: text/plain\n\nHi\n")
+        write(os.path.join(inbox_v, "waiting.eml"),
+              "From: Pat Doe <pat@example.com>\nSubject: Waiting thread\n"
+              "Date: Tue, 27 Oct 2026 10:00:00 -0400\nContent-Type: text/plain\n\nHi\n")
+        with open(os.path.join(inbox_v, "outlook.msg"), "wb") as fh:
+            fh.write(b"not a real msg; the checker never opens it")
+        run(script, inbox_v)
+        os.makedirs(sources, exist_ok=True)
+        for f in sorted(os.listdir(inbox_v)):
+            if f.endswith(".md") and "Filed thread" in f:
+                os.rename(os.path.join(inbox_v, f), os.path.join(sources, f))
+        write(os.path.join(sources, "2026-10-28 Email Pat Doe Outlook thread.md"),
+              "# Source: Email, Outlook thread\n# Type: email\n# Original file: outlook.msg\n\nbody\n")
+        code, out = run(checker, "--quiet", v)
+        found = code0 == 0 and code == 1 and "Leftover emails: 2" in out
+        # filing the two originals clears it; waiting.eml (copy still in the inbox) was never flagged
+        os.remove(os.path.join(inbox_v, "filed.eml"))
+        os.remove(os.path.join(inbox_v, "outlook.msg"))
+        code2, out2 = run(checker, "--quiet", v)
+        cleared = code2 == 0 and "Leftover emails: 0" in out2
+        check("7b. checker flags emails left in _Inbox/ after filing, and not ones still waiting",
+              found and cleared, f"found={found} cleared={cleared} {out[-200:]} {out2[-200:]}")
 
         # 8. repo hygiene
         # tracked files plus new files not yet added (so a check before "git add" still sees them)
