@@ -19,6 +19,8 @@ Read only:
 
 **Do not read full session logs** unless asked or unless the Quick Reference blocks are not enough. If you do, say so.
 
+**Reconcile before reporting.** If a session log you just read says something was done (sent, filed, answered, closed) and the matching task is still open in the task list, do not report that task as open or overdue. List it under "possibly done" and ask the owner whether to close it. Never close it yourself during resume.
+
 ## Variants
 
 | Argument | Behavior |
@@ -35,5 +37,6 @@ Open with 3 to 5 lines, not a report:
 - what was in flight
 - what is overdue, **the owner's own commitments first**
 - what needs a decision today
+- anything possibly done (open in the task list, reported done in a newer session log)
 
 Then stop and let the owner steer.

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.2 (2026-10-27)
+
+From the first migration of a real vault (about 1,800 files).
+
+- `check-vault.py`: links written with the extension (`[[Account Overview.md]]`) now resolve, as they do in Obsidian. Raw source folders (`check_raw_dirs`, default `Sources`) are checked for links but not forbidden characters. New `check_exclude` config key and `--exclude` flag to skip legacy folders.
+- `resume`: reconciles the task list against newer session logs and lists tasks that look done instead of reporting them overdue.
+- `docs/MIGRATING.md`: verify backups with `diff -rq`; `cp -p` can fail silently on network shares.
+
 ## 0.3.1 (2026-10-27)
 
 - `new-vault.py --adopt` for existing vaults: writes only `_system/`, with path options so config points at files you already have.

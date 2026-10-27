@@ -10,11 +10,22 @@ Checks every .md file under the paths given (files or folders):
   4. Links into a people folder whose display alias differs from the file name
      (a likely alias/target mismatch; review by hand)
 
-Skips fenced code blocks, hidden folders, _system/, and any export_*_dir folders. Exit code 1 if anything is found.
+Skips fenced code blocks, hidden folders, _system/, any export_*_dir folders, and any
+folder listed in `check_exclude` in config (or passed with --exclude). An entry without a
+slash matches a folder of that name anywhere (e.g. `_Backups`); one with a slash matches
+that path from the vault root.
+
+Raw source folders (`check_raw_dirs`, default [Sources]) are checked for links but not for
+forbidden characters: sources are saved unedited by design, so their characters are not errors.
+
+Links written with the extension (`[[Account Overview.md]]`) resolve like Obsidian resolves them.
+
+Exit code 1 if anything is found.
 
 Usage:
     python3 _system/scripts/check-vault.py [paths...]      (default: whole vault)
     python3 _system/scripts/check-vault.py --quiet [paths...]  counts only
+    python3 _system/scripts/check-vault.py --exclude "_Claude project" --exclude _Backups
 """
 import os
 import re
@@ -28,7 +39,12 @@ PEOPLE_DIRS = {"stakeholders", "people", "team", "customer", "internal"}
 SKIP_DIRS = {"_system", ".git", ".obsidian", "node_modules"}
 
 
-def md_files(paths, root, skip_rel=()):
+def excluded(rel_dir, name, skip_rel, skip_names):
+    return (name in SKIP_DIRS or name.startswith(".") or name.lower() in skip_names
+            or os.path.normpath(os.path.join(rel_dir, name)) in skip_rel)
+
+
+def md_files(paths, root, skip_rel=(), skip_names=()):
     for p in paths:
         p = os.path.abspath(p)
         if os.path.isfile(p):
@@ -37,8 +53,7 @@ def md_files(paths, root, skip_rel=()):
             continue
         for d, subdirs, files in os.walk(p):
             rel = os.path.relpath(d, root)
-            subdirs[:] = [s for s in subdirs if s not in SKIP_DIRS and not s.startswith(".")
-                          and os.path.normpath(os.path.join(rel, s)) not in skip_rel]
+            subdirs[:] = [s for s in subdirs if not excluded(rel, s, skip_rel, skip_names)]
             for f in files:
                 if f.endswith(".md"):
                     yield os.path.join(d, f)
@@ -76,6 +91,8 @@ def resolve(target, by_name, paths):
     t = t.split("#", 1)[0].split("^", 1)[0].strip()
     if not t:
         return "ok", None
+    if t.lower().endswith(".md"):
+        t = t[:-3]
     if "/" in t:
         tl = t.lower()
         if tl in paths or (tl + ".md") in paths:
@@ -92,9 +109,17 @@ def resolve(target, by_name, paths):
 
 
 def main():
-    args = sys.argv[1:]
-    quiet = "--quiet" in args
-    args = [a for a in args if a != "--quiet"]
+    argv = sys.argv[1:]
+    quiet = "--quiet" in argv
+    cli_exclude, args, i = [], [], 0
+    while i < len(argv):
+        if argv[i] == "--exclude" and i + 1 < len(argv):
+            cli_exclude.append(argv[i + 1])
+            i += 2
+            continue
+        if argv[i] != "--quiet":
+            args.append(argv[i])
+        i += 1
     start = args[0] if args else os.getcwd()
     root = vaultlib.find_vault_root(start)
     if not root:
@@ -104,17 +129,34 @@ def main():
     bad_chars = vaultlib.forbidden_chars(cfg)
     allowed = vaultlib.allowed_strings(cfg)
     skip_rel = {os.path.normpath(d) for d in vaultlib.export_dirs(cfg)}
+    skip_names, user_rel, shown = set(), set(), set()
+    for d in vaultlib.as_list(cfg.get("check_exclude")) + cli_exclude:
+        d = d.strip().strip("/")
+        if not d:
+            continue
+        if "/" in d:
+            skip_rel.add(os.path.normpath(d))
+            user_rel.add(d)
+        else:
+            skip_names.add(d.lower())
+            shown.add(d)
+    raw_dirs = {d.strip().strip("/").lower() for d in
+                (vaultlib.as_list(cfg.get("check_raw_dirs")) if cfg.get("check_raw_dirs") is not None
+                 else ["Sources"]) if d.strip()}
     by_name, paths = build_index(root)
     targets = args or [root]
 
-    counts = {"files": 0, "links": 0, "forbidden": 0, "missing": 0, "ambiguous": 0, "alias": 0}
+    counts = {"files": 0, "links": 0, "forbidden": 0, "missing": 0, "ambiguous": 0, "alias": 0, "raw": 0}
     findings = []
-    for f in md_files(targets, root, skip_rel):
+    for f in md_files(targets, root, skip_rel, skip_names):
         counts["files"] += 1
         rel = os.path.relpath(f, root)
         with open(f, encoding="utf-8", errors="replace") as fh:
             raw = fh.read()
-        for n, line in enumerate(raw.splitlines(), 1):
+        is_raw = bool(raw_dirs & {part.lower() for part in rel.split(os.sep)[:-1]})
+        if is_raw:
+            counts["raw"] += 1
+        for n, line in enumerate([] if is_raw else raw.splitlines(), 1):
             for ok in allowed:
                 line = line.replace(ok, "")
             for ch in bad_chars:
@@ -146,7 +188,9 @@ def main():
             print(line)
         if findings:
             print()
-    print("Checked {files} files, {links} wikilinks.".format(**counts))
+    print("Checked {files} files ({raw} raw sources, links only), {links} wikilinks.".format(**counts))
+    if skip_names or user_rel:
+        print("Excluded folders: " + ", ".join(sorted(shown | user_rel)))
     print("Forbidden characters: {forbidden} | Broken links: {missing} | Ambiguous links: {ambiguous} | "
           "Alias mismatches to review: {alias}".format(**counts))
     if not bad_chars:

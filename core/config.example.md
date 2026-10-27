@@ -11,6 +11,8 @@ timezone:              # IANA name, e.g. America/New_York. All times are stated 
 
 forbidden_chars: []    # characters that must never appear in vault files, e.g. [U+2014] for em dashes
 forbidden_chars_allow: []  # exact strings exempt from that check, e.g. a signature line
+check_exclude: []      # folders check-vault.py skips: a name matches anywhere (e.g. _Backups), a path with / matches from the root
+check_raw_dirs: [Sources]  # raw source folders: links checked, forbidden characters not (sources are saved unedited)
 
 packs: []              # installed packs, e.g. [cse]
 agents: []             # AI tools that work in this vault, e.g. [claude, copilot]

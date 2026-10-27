@@ -18,7 +18,8 @@ Keep a `MIGRATION-LOG.md` in your backup folder as you go: each step, what worke
 
 1. Make a backup folder inside the vault, for example `_Backups/YYYY-MM-DD-intel-vault-migration/`.
 2. Copy into it, unchanged: your tool's rules/skills/commands folder, `AGENTS.md` (or your equivalent entry file), and any root docs that describe the old setup.
-3. **Write `ROLLBACK.md` in that folder before changing anything.** Use the template below, filled in with your real paths.
+3. **Verify the copy with a file count and `diff -rq`, never by eye.** On network shares (a NAS, SMB, some cloud-synced folders) `cp -p` can fail on a single file without stopping the copy, because the share refuses the permission change. A plain `cp` (or `cp -R`) is safer there.
+4. **Write `ROLLBACK.md` in that folder before changing anything.** Use the template below, filled in with your real paths.
 
 ### ROLLBACK.md template
 
@@ -85,7 +86,7 @@ Map every item from your step 0 inventory:
 
 ## 6. Check
 
-1. `python3 _system/scripts/check-vault.py` and record the counts. Older notes often have issues; record them, do not mass-fix them during the migration.
+1. `python3 _system/scripts/check-vault.py` and record the counts. Older notes often have issues; record them, do not mass-fix them during the migration. Put legacy folders you do not want checked (old exports, `_Backups`) in `check_exclude` in config. Raw `Sources/` are checked for links only.
 2. Ask each assistant: "What are my formatting rules, who is my manager, and which commands do you have?"
 3. Run your daily commands from step 0 on a real subject (`resume`, `prep`, and one `intake` at minimum).
 4. Record every result in the log. Any failure is either fixed in place or a rollback trigger.
