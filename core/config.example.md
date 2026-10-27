@@ -1,6 +1,8 @@
 ---
 # Vault configuration. Every AI reads this at the start of a session.
 # Keep values flat (key: value, or key: [a, b]) so the scripts can read it.
+# Every setting goes inside this block, between the two --- lines. Lines below the
+# closing --- are notes for humans; scripts never read them.
 
 owner_name:            # e.g. Jordan Lee
 owner_initials:        # e.g. JL (used to sign CRM and timeline entries)
@@ -35,6 +37,7 @@ data_policy:           # e.g. "No customer account numbers. No employee performa
 export_rules_dir:
 export_skills_dir:
 export_commands_dir:
+export_alias_skills:          # true: also write a small skill per alias (for tools whose slash commands come from skills)
 export_user_only: []          # workflows the tool should only run when asked
 export_user_only_frontmatter: # file with the tool-specific frontmatter lines for those skills
 
@@ -50,6 +53,7 @@ publish_layout: mirror     # mirror (keep folders) or flat (experimental: one fo
 
 The values above are the source of truth. This section is notes for humans.
 
+- **Settings go above, inside the `---` block.** A setting typed down here is ignored.
 - **Change a path here, not in the rules.** Rules refer to files by their config name.
 - **`packs`** is maintained by `scripts/update-vault.py`. Edit it only to remove a pack.
 - **Owner preferences** (writing style, signature, formatting needs) go in `_system/local/rules/10-owner.md`, not here.

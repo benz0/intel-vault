@@ -19,6 +19,8 @@ The owner reads this on the way into the meeting. Lead with what matters and kee
 
 ## Before you brief
 
+**Say when the meeting is, relative to today:** "tomorrow, Wednesday Oct 28, 10:00" or "in 3 days". Never call it "today's call" unless it is today. Check today's date first.
+
 Check the newest source date behind every file you are about to use. **If the subject has not been updated in more than 30 days, open the brief with that fact.** The owner needs to know they are walking in with a stale picture before reading anything else.
 
 ## Output

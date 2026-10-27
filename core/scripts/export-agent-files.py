@@ -11,6 +11,10 @@ writes copies to the folders named in _system/config.md:
   export_skills_dir:    {dir}/{name}/SKILL.md for every workflow (local > pack > core)
   export_commands_dir:  {dir}/{name}.md for every workflow name and one-word alias
 
+  export_alias_skills: true           also write {dir}/{alias}/SKILL.md for every one-word alias, as a
+                                      thin wrapper that points at the main skill. For tools whose
+                                      slash commands come from the skills folder. Wrappers get the
+                                      user-only frontmatter below, so the tool never auto-runs both.
   export_user_only: [names]           workflows the tool should run only when asked
   export_user_only_frontmatter: path  YAML lines (in your tool's syntax) added to those
                                       skills' frontmatter, e.g. a "do not auto-invoke" flag
@@ -123,11 +127,20 @@ def main():
                 end = text.find("\n---", 3)
                 text = text[:end + 1] + extra_fm + text[end + 1:]
             add(os.path.join(targets["skills"], name, "SKILL.md"), path, text)
-        if "commands" not in targets:
-            continue
         desc = fm.get("description", "").replace('"', "'")
         hint = fm.get("argument-hint", "")
         cmd_names = [name] + [a for a in vaultlib.as_list(fm.get("aliases")) if re.fullmatch(r"[a-z0-9\-]+", a)]
+        if "skills" in targets and str(cfg.get("export_alias_skills", "")).lower() == "true":
+            for alias in cmd_names[1:]:
+                if alias in workflows:
+                    continue  # a real workflow owns this name
+                wrapper = (f"---\nname: {alias}\ndescription: \"Same as the {name} skill: {desc}\"\n"
+                           + extra_fm + "---\n"
+                           f"Use the `{name}` skill. Arguments: $1 $2 $3\n\n"
+                           f"Read `_system/README-for-AI.md` if you have not this session, and follow the workflow exactly.\n")
+                add(os.path.join(targets["skills"], alias, "SKILL.md"), path, wrapper)
+        if "commands" not in targets:
+            continue
         for cmd in cmd_names:
             body = (f"---\ndescription: \"{desc}\"\nargument-hint: \"{hint}\"\n---\n"
                     f"Use the `{name}` skill. Arguments: $1 $2 $3\n\n"

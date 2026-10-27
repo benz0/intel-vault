@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.3 (2026-10-27)
+
+From the first update of a migrated vault.
+
+- **Exporter:** `export_alias_skills: true` writes a small wrapper skill for each alias, for tools whose slash commands come only from the skills folder (old command names stopped appearing otherwise). Generated files whose source still exists are left in place and reported, so the exporter never fights a tool that derives files from ours.
+- `check-vault.py`: relative links (`[[../Stakeholders/Jane Doe]]`) resolve as in Obsidian.
+- `update-vault.py`: ignores Python cache files.
+- `intake`: move both the email's markdown copy and the original file into `Sources/`.
+- `email-to-md.py`: file names drop leading tags such as `[EXTERNAL]` as well as RE/FW.
+- `prep`: state the meeting date relative to today; never "today's call" unless it is.
+- Config and MIGRATING: settings go inside the `---` block; check every old command name after export.
+
 ## 0.3.2 (2026-10-27)
 
 From the first migration of a real vault (about 1,800 files).

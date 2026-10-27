@@ -124,7 +124,8 @@ def clean(s):
 
 def safe(s, n=60):
     s = clean(s)
-    s = re.sub(r"^((re|fw|fwd)\s*:\s*)+", "", s.strip(), flags=re.I)
+    # drop leading tags like [EXTERNAL] and reply/forward prefixes, in any order
+    s = re.sub(r"^((\[[^\]\s]{1,15}\]|\b(re|fw|fwd)\s*:)\s*)+", "", s.strip(), flags=re.I)
     s = re.sub(r"[\\/:*?\"<>|\r\n\t]+", " ", s)
     return re.sub(r"\s+", " ", s).strip()[:n].strip() or "no subject"
 

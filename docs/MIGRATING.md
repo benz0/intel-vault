@@ -62,7 +62,7 @@ python3 intel-vault/scripts/new-vault.py /path/to/your/vault --adopt --packs cse
   --internal-dir "your internal folder"
 ```
 
-`--adopt` writes only `_system/`. It warns if a path in config does not exist yet. Then open `_system/config.md` and finish it (data policy, optional files, export folders).
+`--adopt` writes only `_system/`. It warns if a path in config does not exist yet. Then open `_system/config.md` and finish it (data policy, optional files, export folders). **Every setting goes inside the block between the two `---` lines at the top;** anything typed below it is ignored by the scripts.
 
 ## 4. Move your own rules into `_system/local/`
 
@@ -83,6 +83,7 @@ Map every item from your step 0 inventory:
 
 - **Assistants that read the folder:** point them at `_system/README-for-AI.md` (see `adapters/`).
 - **Assistants that only load their own rules folder:** set `export_rules_dir`, `export_skills_dir`, `export_commands_dir` in config, move the old contents of those folders into the backup, then run `python3 _system/scripts/export-agent-files.py`. It reports any hand-written file it finds instead of overwriting it.
+- **Check that every old command name still appears in the tool's command list,** not only the new names. Some tools build their slash-command list from the skills folder and ignore a commands folder. If old names are missing, set `export_alias_skills: true` (plus `export_user_only_frontmatter` with your tool's "do not auto-run" lines) and export again.
 
 ## 6. Check
 

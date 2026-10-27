@@ -16,7 +16,7 @@ Take one piece of raw source material and update every file it touches. This is 
 - **Pasted** into the conversation.
 - **A file** the owner dropped in `inbox_dir` or the subject's `Sources/`. For anything long, dropping the file first is cheaper than pasting it.
 - **A connector** your tool has (a meeting recorder, email, chat). Pull the raw content, not just an AI summary, when the connector offers both.
-- **A saved email** (`.eml` from Mac Outlook, Apple Mail, or Gmail; `.msg` from Windows Outlook) dropped in `inbox_dir`. Run `python3 _system/scripts/email-to-md.py {inbox_dir}` first: it writes a markdown copy with sender, recipients, date, and an attachment list, and keeps the original. File both in `Sources/`. Attachments are listed, never read.
+- **A saved email** (`.eml` from Mac Outlook, Apple Mail, or Gmail; `.msg` from Windows Outlook) dropped in `inbox_dir`. Run `python3 _system/scripts/email-to-md.py {inbox_dir}` first: it writes a markdown copy with sender, recipients, date, and an attachment list, and keeps the original. **Move both** into `Sources/`: the markdown copy and the original `.eml` or `.msg`, side by side with the same base name, so nothing is left in `inbox_dir`. Attachments are listed, never read.
 - **A capture note** from a read-only assistant (`_system/templates/capture.md`), usually pasted into `inbox_dir`. See "Capture notes" below.
 
 ## Steps
