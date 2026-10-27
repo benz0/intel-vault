@@ -29,7 +29,7 @@ A tool-neutral spec for a markdown "intel vault", plus scripts that install and 
 1. **Branch.** Never commit to `main`. Name it `proposed/{version}` or `proposed/{short-topic}`.
 2. **Make the change.** Keep each branch to one theme.
 3. **Run the self-test:** `python3 scripts/selftest.py`. Every check must pass. If you changed behavior the self-test does not cover, add a check for it.
-4. **Update `CHANGELOG.md`** (new version at the top, one line per change, why it changed) and bump `VERSION` (patch for fixes, minor for new commands, packs, or config keys).
+4. **Update `CHANGELOG.md`** (new version at the top, one line per change, why it changed) and bump `VERSION` (patch for fixes, minor for new commands, packs, or config keys). A change that is only docs (nothing under `core/`, `packs/`, `adapters/`, or `scripts/` changes behavior) may instead go under an `## Unreleased` heading at the top of the changelog, with no version bump. When the next version is released, its entry absorbs the Unreleased lines.
 5. **Summarize for the owner before committing:** each file changed, what changed, why, and the self-test result. Wait for an explicit yes.
 6. **Commit and push the branch.** Do not merge it.
 7. **Review.** A second assistant or person who did not write the change reviews the branch and reruns the self-test. Only then is it merged to `main`.

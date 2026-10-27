@@ -73,7 +73,7 @@ For every test email open the `.md` and compare it with Outlook side by side. Us
 7. **Body:** complete, in order, no text from after the signature missing, no HTML tags left, quoted history intact. Note anything lost (tables, links, bold).
 8. **Characters:** no stray control characters; accents, CJK, and emoji intact in the body.
 9. **Original kept:** the `.msg` is still in place and unchanged (compare size and modified time).
-10. **Idempotence:** run the script a second time on the folder. The script's header says a folder converts files "that have no .md yet". Checked on a sample `.eml` while writing this plan: a second run reconverts the file and overwrites the `.md`, so the header and the code disagree. Confirm the same for `.msg`, and note whether any hand edits to the `.md` were lost.
+10. **Rerun:** add a short line to one converted `.md` and rename it, then run the script on the folder again. It should print that it skipped the `.msg` as already converted (it finds the copy by the `# Original file:` line) and leave your edited file alone. Then run with `--force` and confirm it converts again.
 11. **Console:** no `UnicodeEncodeError` when printing the file name in a Windows console (cp1252). T09 is the likely trigger. Try also with `set PYTHONUTF8=1`.
 12. **Intake:** drop one converted email and its `.msg` into a throwaway vault's `_Inbox/` and say `intake`. The assistant should treat the `.md` as the source and move both files into `Sources/`.
 

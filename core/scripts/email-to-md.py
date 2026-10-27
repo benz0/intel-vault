@@ -14,8 +14,11 @@ the markdown copy; intake moves both into the subject's Sources/ folder.
 Attachments are listed by name and size, never extracted or read.
 
 Usage:
-    python3 _system/scripts/email-to-md.py <file or folder> [--out <folder>]
-    (a folder converts every .eml and .msg in it that has no .md yet)
+    python3 _system/scripts/email-to-md.py <file or folder> [--out <folder>] [--force]
+    (a folder converts every .eml and .msg in it that has no markdown copy yet;
+     a copy is found by the "# Original file:" line in a .md in the output folder,
+     so renaming or editing the .md does not cause a reconvert. --force converts
+     them all again and overwrites. A single named file is always converted.)
 """
 import datetime
 import email
@@ -160,11 +163,38 @@ def convert(path, out_dir):
     return dest
 
 
+def already_converted(out_dir):
+    """Original file names that a .md in out_dir says it was converted from."""
+    seen = set()
+    marker = "# Original file: "
+    try:
+        names = os.listdir(out_dir)
+    except OSError:
+        return seen
+    for f in names:
+        if not f.lower().endswith(".md"):
+            continue
+        try:
+            with open(os.path.join(out_dir, f), encoding="utf-8", errors="replace") as fh:
+                for _ in range(10):  # the header is the first few lines
+                    line = fh.readline()
+                    if not line:
+                        break
+                    if line.startswith(marker):
+                        seen.add(line[len(marker):].rstrip("\r\n"))
+                        break
+        except OSError:
+            continue
+    return seen
+
+
 def main():
     args = sys.argv[1:]
     if not args:
         print(__doc__)
         sys.exit(1)
+    force = "--force" in args
+    args = [a for a in args if a != "--force"]
     out = None
     if "--out" in args:
         i = args.index("--out")
@@ -172,21 +202,30 @@ def main():
         args = args[:i] + args[i + 2:]
     target = args[0]
     files = []
+    skipped = 0
     if os.path.isdir(target):
+        have = set() if force else already_converted(out or target)
         for f in sorted(os.listdir(target)):
             if f.lower().endswith((".eml", ".msg")):
-                files.append(os.path.join(target, f))
+                if f in have:
+                    skipped += 1
+                else:
+                    files.append(os.path.join(target, f))
     else:
         files = [target]
     if not files:
-        print("No .eml or .msg files found.")
+        if skipped:
+            print(f"No new emails. Skipped {skipped} already converted (use --force to redo).")
+        else:
+            print("No .eml or .msg files found.")
         return
     done = 0
     for f in files:
         dest = convert(f, out or os.path.dirname(os.path.abspath(f)))
         print(f"  {os.path.basename(f)} -> {os.path.basename(dest)}")
         done += 1
-    print(f"Converted {done} email(s). Originals kept. Run intake to file them.")
+    note = f" Skipped {skipped} already converted (use --force to redo)." if skipped else ""
+    print(f"Converted {done} email(s).{note} Originals kept. Run intake to file them.")
 
 
 if __name__ == "__main__":
