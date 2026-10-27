@@ -12,6 +12,8 @@ Builds throwaway vaults in a temp folder (nothing outside it is touched) and che
   4. update-vault.py on a fresh vault reports nothing to change.
   5. new-vault.py --adopt writes only _system/ and leaves existing notes byte-identical.
   6. email-to-md.py converts a sample .eml and names it without [EXTERNAL] or RE.
+     A second run converts nothing and leaves an edited, renamed .md alone (found by its
+     "# Original file:" line); a new email alongside is still converted; --force redoes it.
   7. check-vault.py catches a planted forbidden character and a broken link, resolves
      relative and .md links, and skips raw Sources/ for characters.
   8. The repo itself: no forbidden characters in tracked or new text files (except the
@@ -138,6 +140,30 @@ def main():
         ok = code == 0 and len(mds) == 1 and "EXTERNAL" not in mds[0] and " RE " not in mds[0] \
             and "Renewal timing" in mds[0] and os.path.isfile(os.path.join(inbox, "sample.eml"))
         check("6. email-to-md converts and names cleanly", ok, f"{mds} {out[-200:]}")
+
+        # 6b. rerun skips what is already converted, even if the .md was edited and renamed
+        script = os.path.join(v, "_system", "scripts", "email-to-md.py")
+        first = os.path.join(inbox, mds[0])
+        renamed = os.path.join(inbox, "renamed by hand.md")
+        os.rename(first, renamed)
+        with open(renamed, "a", encoding="utf-8") as fh:
+            fh.write("\nHAND EDIT\n")
+        before_inbox = snapshot(inbox)
+        code, out = run(script, inbox)
+        unchanged = snapshot(inbox) == before_inbox and "Converted 0 " not in out and "No new emails" in out
+        write(os.path.join(inbox, "second.eml"),
+              "From: Pat Doe <pat@example.com>\nSubject: Second thread\n"
+              "Date: Tue, 27 Oct 2026 09:00:00 -0400\nContent-Type: text/plain\n\nHi\n")
+        code2, out2 = run(script, inbox)
+        mds2 = sorted(f for f in os.listdir(inbox) if f.endswith(".md"))
+        added_one = code2 == 0 and "Converted 1 " in out2 and len(mds2) == 2
+        with open(renamed, encoding="utf-8") as fh:
+            kept = "HAND EDIT" in fh.read()
+        code3, out3 = run(script, inbox, "--force")
+        forced = code3 == 0 and "Converted 2 " in out3
+        check("6b. email-to-md rerun converts nothing new, keeps edits, --force redoes",
+              code == 0 and unchanged and added_one and kept and forced,
+              f"unchanged={unchanged} added_one={added_one} kept={kept} forced={forced} {out[-150:]}")
 
         # 7. checker catches and resolves
         acct = os.path.join(v, "Accounts", "Acme")

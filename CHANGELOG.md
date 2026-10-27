@@ -1,9 +1,11 @@
 # Changelog
 
-## Unreleased (docs only, no version bump)
+## 0.3.6 (2026-10-27)
 
-- `docs/msg-test-plan.md`: test plan for Windows `.msg` emails (17 test emails, a per-file checklist, pass criteria), from the roadmap feedback queue. Not yet run on Windows.
-- Found while writing it: `email-to-md.py` says a folder converts files "that have no .md yet", but a second run reconverts and overwrites every `.md`. Not fixed here; the plan asks the tester to confirm it for `.msg`.
+- **`email-to-md.py`:** converting a folder now skips any email whose markdown copy already exists. The copy is found by the `# Original file:` line in a `.md` in the output folder, not by file name, so a renamed or hand-edited copy is left alone. New `--force` reconverts everything. Why: v0.3.5 found that the header promised "files that have no .md yet" but a second run overwrote every `.md`, including edits. A single named file is still always converted.
+- `scripts/selftest.py` check 6b: a second run converts nothing and leaves an edited, renamed `.md` alone, a new email alongside is still converted, and `--force` redoes all. It fails on the old script.
+- `DEVELOPING.md`: docs-only changes may go under an "Unreleased" changelog heading with no version bump.
+- `docs/msg-test-plan.md` (added earlier under Unreleased, merged here): test plan for Windows `.msg` emails (17 test emails, a per-file checklist, pass criteria), from the roadmap feedback queue. Not yet run on Windows. Its rerun check tests the fixed behaviour.
 
 ## 0.3.4 (2026-10-27)
 
