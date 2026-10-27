@@ -51,7 +51,7 @@ Contradicts vault:       ...
 
 **8. On approval, propagate** to: `Meeting Log.md`, the subject's `Current State.md`, affected people files, any files the pack lists for this subject type, the task list for anything the owner owns, and **Waiting on others** for anything someone else committed to.
 
-**9. Run the hygiene checks** (`40-vault-conventions.md`) on every file you wrote or edited, and report the counts.
+**9. Run the hygiene checks** (`40-vault-conventions.md`) on every file you wrote or edited, and report the counts. For a saved email, the same run reports **Leftover emails**: a `.eml` or `.msg` still in `inbox_dir` whose markdown copy is already in a `Sources/` folder. The count must be 0. If not, you moved only one of the two files; move the other into the same `Sources/` folder.
 
 **10. Publish.** If `publish_dir` is set in config, run `python3 _system/scripts/publish-vault.py` and report its one-line result (or remind the owner, if you cannot run scripts).
 

@@ -9,6 +9,11 @@ Checks every .md file under the paths given (files or folders):
   3. Bare wikilinks that match more than one file (ambiguous)
   4. Links into a people folder whose display alias differs from the file name
      (a likely alias/target mismatch; review by hand)
+  5. Leftover emails: a .eml or .msg still in `inbox_dir` (default _Inbox) whose markdown
+     copy is already in a Sources folder. It is found by the "# Original file:" line that
+     email-to-md.py writes, not by file name. Intake moves both files, so any hit means a
+     step was skipped. Runs on every check, whatever paths you pass. A different email with
+     the same file name as a filed one would be flagged too: review each hit before deleting.
 
 Skips fenced code blocks, hidden folders, _system/, any export_*_dir folders, and any
 folder listed in `check_exclude` in config (or passed with --exclude). An entry without a
@@ -87,6 +92,41 @@ def strip_code(text):
     return out
 
 
+def original_file(path):
+    """The name in a '# Original file:' header line (first lines of an email-to-md.py copy)."""
+    marker = "# Original file: "
+    try:
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            for _ in range(10):
+                line = fh.readline()
+                if not line:
+                    break
+                if line.startswith(marker):
+                    return line[len(marker):].rstrip("\r\n")
+    except OSError:
+        pass
+    return None
+
+
+def leftover_emails(root, inbox_dir, raw_dirs, skip_rel, skip_names):
+    """Emails in the inbox whose markdown copy is already in a Sources folder."""
+    inbox = os.path.join(root, inbox_dir)
+    emails = []
+    for d, subdirs, files in os.walk(inbox):
+        subdirs[:] = [x for x in subdirs if not x.startswith(".")]
+        emails += [os.path.join(d, f) for f in sorted(files) if f.lower().endswith((".eml", ".msg"))]
+    if not emails:
+        return []
+    filed = set()
+    for f in md_files([root], root, skip_rel, skip_names):
+        rel = os.path.relpath(f, root)
+        if raw_dirs & {part.lower() for part in rel.split(os.sep)[:-1]}:
+            name = original_file(f)
+            if name:
+                filed.add(name)
+    return [os.path.relpath(e, root) for e in emails if os.path.basename(e) in filed]
+
+
 def resolve(target, by_name, paths, here=""):
     t = target.strip().replace("\\", "")
     t = t.split("#", 1)[0].split("^", 1)[0].strip()
@@ -152,7 +192,8 @@ def main():
     by_name, paths = build_index(root)
     targets = args or [root]
 
-    counts = {"files": 0, "links": 0, "forbidden": 0, "missing": 0, "ambiguous": 0, "alias": 0, "raw": 0}
+    counts = {"files": 0, "links": 0, "forbidden": 0, "missing": 0, "ambiguous": 0, "alias": 0, "raw": 0,
+              "leftover": 0}
     findings = []
     for f in md_files(targets, root, skip_rel, skip_names):
         counts["files"] += 1
@@ -189,6 +230,12 @@ def main():
                         counts["alias"] += 1
                         findings.append(f"{rel}:{n}: check alias [[{inner}]] points at '{stem}'")
 
+    inbox_dir = (cfg.get("inbox_dir") or "_Inbox").strip().strip("/")
+    for rel in leftover_emails(root, inbox_dir, raw_dirs, skip_rel, skip_names):
+        counts["leftover"] += 1
+        findings.append(f"{rel}: leftover email, its markdown copy is already in a Sources folder "
+                        f"(move or delete this file)")
+
     if not quiet:
         for line in findings:
             print(line)
@@ -198,10 +245,10 @@ def main():
     if skip_names or user_rel:
         print("Excluded folders: " + ", ".join(sorted(shown | user_rel)))
     print("Forbidden characters: {forbidden} | Broken links: {missing} | Ambiguous links: {ambiguous} | "
-          "Alias mismatches to review: {alias}".format(**counts))
+          "Alias mismatches to review: {alias} | Leftover emails: {leftover}".format(**counts))
     if not bad_chars:
         print("Note: no forbidden_chars set in _system/config.md, so no character check ran.")
-    sys.exit(1 if (counts["forbidden"] or counts["missing"] or counts["ambiguous"]) else 0)
+    sys.exit(1 if (counts["forbidden"] or counts["missing"] or counts["ambiguous"] or counts["leftover"]) else 0)
 
 
 if __name__ == "__main__":

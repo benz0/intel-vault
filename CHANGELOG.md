@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.7 (2026-10-27)
+
+- **`check-vault.py`:** reports **Leftover emails**: a `.eml` or `.msg` still in `inbox_dir` (default `_Inbox`) whose markdown copy is already in a `Sources/` folder. The copy is matched by its `# Original file:` line, not by file name. A leftover makes the exit code 1. It runs on every check, whatever paths are passed. Why: after intake the inbox should hold nothing already filed; moving the markdown copy but not the original left it behind with no count to show it.
+- `intake` step 9: the hygiene run reports the Leftover emails count, which must be 0, and says what to do if not.
+- `scripts/selftest.py` check 7b: an `.eml` and a `.msg` whose copies are in `Sources/` are flagged (the `.msg` case uses a hand-written copy header, since `extract-msg` is not needed to test the checker); an email whose copy is still waiting in the inbox is not; filing the originals clears the count. It fails on the old checker.
+- `README.md`: the hygiene paragraph lists the new check.
+
 ## 0.3.6 (2026-10-27)
 
 - **`email-to-md.py`:** converting a folder now skips any email whose markdown copy already exists. The copy is found by the `# Original file:` line in a `.md` in the output folder, not by file name, so a renamed or hand-edited copy is left alone. New `--force` reconverts everything. Why: v0.3.5 found that the header promised "files that have no .md yet" but a second run overwrote every `.md`, including edits. A single named file is still always converted.
