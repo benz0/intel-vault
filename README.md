@@ -140,6 +140,10 @@ Then:
    - **A tool that only reads its own rules folder:** set `export_rules_dir` (and the skills and commands equivalents) in config, then run `python3 _system/scripts/export-agent-files.py`.
 3. Say **`resume`**.
 
+### Already have AI-maintained notes?
+
+Adopt them instead of starting over: `new-vault.py --adopt` adds only the `_system/` folder and never moves or rewrites your notes. Follow [docs/MIGRATING.md](docs/MIGRATING.md), which starts with a backup and a written rollback plan.
+
 ### Updating
 
 ```bash

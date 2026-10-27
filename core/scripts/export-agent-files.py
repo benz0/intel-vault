@@ -11,6 +11,10 @@ writes copies to the folders named in _system/config.md:
   export_skills_dir:    {dir}/{name}/SKILL.md for every workflow (local > pack > core)
   export_commands_dir:  {dir}/{name}.md for every workflow name and one-word alias
 
+  export_user_only: [names]           workflows the tool should run only when asked
+  export_user_only_frontmatter: path  YAML lines (in your tool's syntax) added to those
+                                      skills' frontmatter, e.g. a "do not auto-invoke" flag
+
 Leave a key blank to skip that export. Every exported file carries a GENERATED banner.
 
 Safety:
@@ -94,9 +98,22 @@ def main():
         name = fm.get("name") or os.path.splitext(os.path.basename(path))[0]
         workflows[name] = (path, fm)
 
+    # Optional: mark some skills "only when the owner asks" in the tool's own syntax.
+    user_only = set(vaultlib.as_list(cfg.get("export_user_only")))
+    extra_fm = ""
+    fm_file = cfg.get("export_user_only_frontmatter")
+    if isinstance(fm_file, str) and fm_file:
+        with open(os.path.join(vault, fm_file), encoding="utf-8") as fh:
+            extra_fm = fh.read().strip("\n") + "\n"
+
     for name, (path, fm) in sorted(workflows.items()):
         if "skills" in targets:
-            add(os.path.join(targets["skills"], name, "SKILL.md"), path)
+            with open(path, encoding="utf-8") as fh:
+                text = fh.read()
+            if (name in user_only or fm.get("invocation") == "user") and extra_fm and text.startswith("---"):
+                end = text.find("\n---", 3)
+                text = text[:end + 1] + extra_fm + text[end + 1:]
+            add(os.path.join(targets["skills"], name, "SKILL.md"), path, text)
         if "commands" not in targets:
             continue
         desc = fm.get("description", "").replace('"', "'")

@@ -15,6 +15,12 @@ Options:
     --tz America/New_York     IANA timezone
     --agents claude,copilot   AI tools that will work in the vault
     --no-em-dash              add U+2014 to forbidden_chars
+    --task-list PATH          where the task list lives (default: Open Actions.md)
+    --sessions-dir, --internal-dir, --inbox-dir, --drafts-dir,
+    --accomplishments PATH, --feedback-log PATH   override the other default paths
+    --adopt                   EXISTING vault: write only _system/ (spec plus config.md).
+                              Creates, moves, and overwrites none of your notes or folders.
+                              Use the path options to point config at files you already have.
 
 The destination may exist but must not already contain _system/.
 Nothing outside the destination is touched.
@@ -94,11 +100,18 @@ def main():
     ap.add_argument("--tz", default="")
     ap.add_argument("--agents", default="claude")
     ap.add_argument("--no-em-dash", action="store_true")
+    ap.add_argument("--adopt", action="store_true")
+    paths = ["task-list", "sessions-dir", "internal-dir", "inbox-dir", "drafts-dir",
+             "accomplishments", "feedback-log"]
+    for pth in paths:
+        ap.add_argument("--" + pth, default="")
     a = ap.parse_args()
 
     vault = os.path.abspath(a.dest)
     if os.path.exists(os.path.join(vault, "_system")):
         sys.exit(f"{vault} already has _system/. Use scripts/update-vault.py to update it.")
+    if a.adopt and not os.path.isdir(vault):
+        sys.exit(f"--adopt needs an existing folder: {vault}")
     os.makedirs(vault, exist_ok=True)
     packs = [p.strip() for p in a.packs.split(",") if p.strip()]
     agents = [x.strip() for x in a.agents.split(",") if x.strip()]
@@ -116,6 +129,10 @@ def main():
             cfg = set_key(cfg, key, val)
     if a.no_em_dash:
         cfg = set_key(cfg, "forbidden_chars", "[U+2014]")
+    for pth in paths:
+        val = getattr(a, pth.replace("-", "_"))
+        if val:
+            cfg = set_key(cfg, pth.replace("-", "_"), val)
     # pack config keys, appended inside the frontmatter
     extra = []
     for p in packs:
@@ -130,6 +147,20 @@ def main():
         cfg = "---" + head.rstrip("\n") + "\n" + "\n".join(extra) + "\n" + sep + rest
     with open(os.path.join(sysdir, "config.md"), "w", encoding="utf-8") as fh:
         fh.write(cfg)
+
+    if a.adopt:
+        conf = vaultlib.read_config(vault)
+        print(f"Adopted existing vault at {vault}: wrote _system/ only. No notes or folders were created or changed.")
+        print(f"  packs: {', '.join(packs) or 'none'}   agents: {', '.join(agents)}")
+        missing = [k for k in ("task_list", "sessions_dir", "internal_dir", "accomplishments", "feedback_log",
+                               "inbox_dir", "drafts_dir")
+                   if conf.get(k) and not os.path.exists(os.path.join(vault, conf[k]))]
+        if missing:
+            print("  Config points at paths that do not exist yet (create them or fix config.md):")
+            for k in missing:
+                print(f"    {k}: {conf[k]}")
+        print("Next: in docs/MIGRATING.md, finish config.md (end of step 3), then step 4.")
+        return
 
     conf = vaultlib.read_config(vault)
     values = {"owner_name": a.owner or "Owner", "Subject": "{Subject}"}

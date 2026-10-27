@@ -47,6 +47,8 @@ Core commands:
 
 Packs add more (for example the CSE pack adds `risk`, `cs-update`, `build-vault`). List them by reading the workflow folders. If the owner uses a command that has no workflow file, say so and list the ones that exist.
 
+**Templates layer the same way.** When a workflow names a template such as `_system/templates/session.md`, use `_system/local/templates/session.md` if it exists, then `_system/packs/{pack}/templates/`, then the core one.
+
 **No command is required.** Plain language works. Commands exist to load a specific checklist.
 
 ---

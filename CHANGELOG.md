@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.1 (2026-10-27)
+
+- `new-vault.py --adopt` for existing vaults: writes only `_system/`, with path options so config points at files you already have.
+- `docs/MIGRATING.md`: adoption steps with a backup, a written rollback plan, and acceptance checks.
+- Templates layer like rules: `_system/local/templates/` overrides pack and core templates.
+- Exporter: `export_user_only` and `export_user_only_frontmatter` mark skills a tool should run only when asked.
+
 ## 0.3.0 (2026-10-27)
 
 From a working session with two CSEs who run their own versions of this workflow.

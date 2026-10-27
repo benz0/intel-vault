@@ -33,6 +33,8 @@ data_policy:           # e.g. "No customer account numbers. No employee performa
 export_rules_dir:
 export_skills_dir:
 export_commands_dir:
+export_user_only: []          # workflows the tool should only run when asked
+export_user_only_frontmatter: # file with the tool-specific frontmatter lines for those skills
 
 # Optional: publish a read-only copy for AI tools that only read cloud storage
 # (for example Microsoft 365 Copilot). Point publish_dir at an EMPTY folder that
