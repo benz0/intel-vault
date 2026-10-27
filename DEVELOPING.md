@@ -51,4 +51,5 @@ A tool-neutral spec for a markdown "intel vault", plus scripts that install and 
 - A script that reported "clean" without counting. Every check prints real numbers.
 - A setting typed below the config block, where scripts cannot read it. Config notes now say where settings go.
 - An update that silently removed command names a tool relied on. The exporter now keeps files whose source still exists, and the migration check asks for every old command name by name.
+- A self-test that passed here and failed on the owner's machine: it only scanned files already added to git, so a new file with the forbidden character slipped through. It now scans new files too, and the test itself builds that character with `chr(0x2014)` instead of typing it.
 - `cp -p` failing silently on a network share during a backup. Verify copies with `diff -rq`.

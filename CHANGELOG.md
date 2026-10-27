@@ -2,7 +2,7 @@
 
 ## 0.3.4 (2026-10-27)
 
-- `scripts/selftest.py`: one command that builds throwaway vaults and checks install, export (and that a second export changes nothing), update, adopt, email conversion, the checker, and repo hygiene. Run before every commit.
+- `scripts/selftest.py`: one command that builds throwaway vaults and checks install, export (and that a second export changes nothing), update, adopt, email conversion, the checker, and repo hygiene. Run before every commit. Scans new, not-yet-added files too.
 - `DEVELOPING.md`: house rules and the branch, self-test, summary, review process for contributors, person or AI.
 
 ## 0.3.3 (2026-10-27)

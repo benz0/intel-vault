@@ -14,7 +14,7 @@ Builds throwaway vaults in a temp folder (nothing outside it is touched) and che
   6. email-to-md.py converts a sample .eml and names it without [EXTERNAL] or RE.
   7. check-vault.py catches a planted forbidden character and a broken link, resolves
      relative and .md links, and skips raw Sources/ for characters.
-  8. The repo itself: no forbidden characters in tracked text files (except the
+  8. The repo itself: no forbidden characters in tracked or new text files (except the
      signature divider), and none of the words in .git/info/banned-words, if that
      file exists. Keep that file out of the repo; it never gets committed.
 
@@ -30,7 +30,7 @@ import tempfile
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PY = sys.executable
-EM = "—"
+EM = chr(0x2014)  # never type the character itself in this file
 SIGNATURE = f"{EM} {EM} {EM}"
 results = []
 
@@ -151,7 +151,9 @@ def main():
         check("7. checker finds 1 character and 1 broken link, resolves the rest", ok, out[-300:])
 
         # 8. repo hygiene
-        files = subprocess.run(["git", "ls-files"], cwd=REPO, capture_output=True, text=True).stdout.split("\n")
+        # tracked files plus new files not yet added (so a check before "git add" still sees them)
+        files = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard"],
+                               cwd=REPO, capture_output=True, text=True).stdout.split("\n")
         banned_path = os.path.join(REPO, ".git", "info", "banned-words")
         banned = []
         if os.path.isfile(banned_path):
