@@ -199,6 +199,10 @@ Counts forbidden characters (minus any exact strings you exempt in `forbidden_ch
 - **A work vault on an employer laptop, run through an employer's AI account, may be visible to your employer.** Keep personal matters out of it.
 - **Check your employer's AI policy** before putting customer or employee data in any AI tool, and record the short version in `data_policy`.
 
+## Contributing
+
+See `DEVELOPING.md`: house rules, the branch and review process, and `scripts/selftest.py`.
+
 ## Credits
 
 The workflow traces back to a demo by Eric Reeves (IBM/HashiCorp SE). Kwadwo Eck adapted it into an account management assistant prompt, and the account file templates here come from that prompt. The session-memory loop is adapted from the Claude Code + Obsidian pattern shared on r/ClaudeAI.
