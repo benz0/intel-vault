@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased (docs only, no version bump)
+
+- `docs/msg-test-plan.md`: test plan for Windows `.msg` emails (17 test emails, a per-file checklist, pass criteria), from the roadmap feedback queue. Not yet run on Windows.
+- Found while writing it: `email-to-md.py` says a folder converts files "that have no .md yet", but a second run reconverts and overwrites every `.md`. Not fixed here; the plan asks the tester to confirm it for `.msg`.
+
 ## 0.3.4 (2026-10-27)
 
 - `scripts/selftest.py`: one command that builds throwaway vaults and checks install, export (and that a second export changes nothing), update, adopt, email conversion, the checker, and repo hygiene. Run before every commit. Scans new, not-yet-added files too.
