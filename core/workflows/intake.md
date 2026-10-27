@@ -16,6 +16,7 @@ Take one piece of raw source material and update every file it touches. This is 
 - **Pasted** into the conversation.
 - **A file** the owner dropped in `inbox_dir` or the subject's `Sources/`. For anything long, dropping the file first is cheaper than pasting it.
 - **A connector** your tool has (a meeting recorder, email, chat). Pull the raw content, not just an AI summary, when the connector offers both.
+- **A capture note** from a read-only assistant (`_system/templates/capture.md`), usually pasted into `inbox_dir`. See "Capture notes" below.
 
 ## Steps
 
@@ -51,7 +52,18 @@ Contradicts vault:       ...
 
 **9. Run the hygiene checks** (`40-vault-conventions.md`) on every file you wrote or edited, and report the counts.
 
-**10. Close with the external-system prompt** if a pack defines one (for example the CSE pack asks whether to draft a CRM timeline entry).
+**10. Publish.** If `publish_dir` is set in config, run `python3 _system/scripts/publish-vault.py` and report its one-line result (or remind the owner, if you cannot run scripts).
+
+**11. Close with the external-system prompt** if a pack defines one (for example the CSE pack asks whether to draft a CRM timeline entry).
+
+## Capture notes
+
+A capture note is a **proposal**, written by an assistant that can read the vault but not change it. Handle it like any other source:
+
+- Save it to `Sources/` unedited, like a transcript.
+- Its facts carry the source **the capture note names** (usually "owner, via {tool} chat, {date}"), never "confirmed" by the tool that wrote it.
+- Its "proposed changes" are suggestions. Run the normal CHANGES DETECTED step, show the owner, and apply only what they approve. Fix anything that breaks vault rules (for example a fact proposed for a prep file belongs in a meeting record or `Current State.md`).
+- Once applied, move the note from `inbox_dir` into the subject's `Sources/`.
 
 ## Judgment rules
 

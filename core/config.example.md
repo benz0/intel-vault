@@ -33,6 +33,12 @@ data_policy:           # e.g. "No customer account numbers. No employee performa
 export_rules_dir:
 export_skills_dir:
 export_commands_dir:
+
+# Optional: publish a read-only copy for AI tools that only read cloud storage
+# (for example Microsoft 365 Copilot). Point publish_dir at an EMPTY folder that
+# OneDrive or SharePoint syncs, outside this vault. Runs after wrap and intake.
+publish_dir:
+publish_exclude: [_system/local, _Internal]
 ---
 
 # Vault configuration

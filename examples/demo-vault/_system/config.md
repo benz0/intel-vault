@@ -40,6 +40,10 @@ crm: Salesforce
 products: [Vault Enterprise, Terraform Enterprise]
 competitors: []
 
+
+# Publish a read-only copy for cloud-only assistants (see adapters/m365-copilot.md)
+publish_dir:
+publish_exclude: [_system/local, _Internal]
 ---
 
 # Vault configuration

@@ -8,6 +8,8 @@ This folder (`_system/`) is the operating spec for an intel vault: a folder of p
 
 ## Boot order (every session)
 
+**If the folder you are reading has a `_PUBLISHED.md` at the top, you are reading a one-way copy.** You are a reader: follow the reader rules in `_system/rules/45-multiple-agents.md`, never claim to edit files, and hand new information back as a capture note (`_system/templates/capture.md`).
+
 1. **`AGENTS.md`** at the vault root. Current state: what is in flight, one row per subject. Small on purpose.
 2. **`_system/config.md`**. Who the owner is, their timezone, which packs are installed, and where the key files live. Every rule below refers to paths by their config name (for example **the task list** means the file named in `task_list`).
 3. **Every rule file, in this order.** Later files win where they conflict:

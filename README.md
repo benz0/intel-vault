@@ -70,7 +70,21 @@ Many people end up with two assistants: one that is good at batch work (process 
 This has run day to day with two different AI tools writing the same vault. Two things make it work, and both are in the rules:
 
 - **One assistant per account at a time.** Shared files are coordinated by convention, not by locks. Before writing, an assistant checks whether the files changed in the last hour and stops to ask if another tool has been working that account.
-- **The tool has to be able to read the folder.** Desktop and editor-based assistants that open a local folder can read and write it. Office-suite assistants that only reach cloud storage may be limited to reading copies of the notes; check yours first (see [adapters/any-llm.md](adapters/any-llm.md)).
+- **Writers and readers.** Assistants that can open the vault folder are **writers**: they run intake and wrap. Assistants that only reach cloud storage, like Microsoft 365 Copilot, are **readers**: the vault publishes a one-way, read-only copy to OneDrive or SharePoint for them after every intake and wrap.
+
+### Example: Microsoft 365 Copilot as a reader
+
+Tested on the demo vault: Copilot read the published notes, built a correct call prep brief, and also searched mail, Teams, and meetings for anything new on the account. It cannot edit files, so when you tell it something new it hands back a **capture note** (a short, sourced proposal in a fixed format). You paste the note into `_Inbox/`, and your writer assistant shows you the changes and applies the ones you approve.
+
+```mermaid
+flowchart LR
+    V[("Vault<br/>(local)")] -->|publish, one way| O["OneDrive copy"]
+    O --> C["Copilot<br/>prep, questions,<br/>searches mail and Teams"]
+    C -->|capture note| I["_Inbox/"]
+    I -->|writer applies<br/>after you approve| V
+```
+
+Setup: [adapters/m365-copilot.md](adapters/m365-copilot.md).
 
 ## Guardrails that come built in
 

@@ -17,7 +17,7 @@
    - Teams transcripts brought in by paste or via `_Inbox/`
    - strict defaults for HR-sensitive content
 4. **`personal-life` pack:** areas, one personal task list, sessions. No content shipped.
-5. **Copilot adapter,** once tested against a real Microsoft 365 setup.
+5. **Microsoft 365 Copilot:** first pass shipped in v0.2 (publish, capture notes). Next: test on a real account and on the people-manager pack.
 
 ## Open design questions
 

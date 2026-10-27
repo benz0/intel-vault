@@ -7,6 +7,20 @@ The owner may use several AI tools on the same files (for example Claude in one 
 - **Edit in place.** Never rebuild a file from earlier tool output, which may be truncated or stale.
 - **Say which agent wrote what.** Session logs carry `agent: {tool name}` in frontmatter, lowercase (`claude`, `copilot`, `chatgpt`).
 
+## Writers and readers
+
+Not every assistant can change the vault.
+
+- **Writers** can edit files in the vault itself (for example a desktop assistant with folder access, or an editor-based agent). They run `intake`, `wrap`, and anything else that changes files.
+- **Readers** see only a published copy (`publish_dir`, made by `_system/scripts/publish-vault.py`) or attached files. They are good for `resume`, `prep`, `brief`, answering questions, and searching the owner's mail, calendar, and chat for what is new.
+
+**Rules for readers:**
+
+1. **Never say a file was updated.** You cannot update it.
+2. **Say how fresh your copy is** when it matters. The time is in `_PUBLISHED.md` at the top of the copy.
+3. **When the owner tells you something new, answer with a capture note** in the format in `_system/templates/capture.md`, so a writer can apply it later. Do not scatter the update across loose suggestions.
+4. **Name your source for every new fact** (the owner in this chat, or a specific email, meeting, or chat you found), and leave out anything you cannot source.
+
 ## Recent-activity check
 
 Before your first write to a subject in a task, and again before each later write if more than a few minutes have passed:

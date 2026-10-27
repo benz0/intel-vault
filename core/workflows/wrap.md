@@ -27,7 +27,11 @@ Before writing anything other than the session log, show the owner every propose
 
 Run the recent-activity check (`45-multiple-agents.md`) before writing to shared files. Then write what the owner approves.
 
-## 3. Keep AGENTS.md small
+## 3. Publish the read-only copy
+
+If `publish_dir` is set in config, run `python3 _system/scripts/publish-vault.py` after the approved writes and report its one-line result. If you cannot run scripts, remind the owner to run it. Skip this step if nothing in the vault changed.
+
+## 4. Keep AGENTS.md small
 
 `AGENTS.md` loads on every message. When it passes **10 KB** (`wc -c AGENTS.md`):
 
