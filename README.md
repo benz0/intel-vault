@@ -54,8 +54,23 @@ flowchart LR
 ```
 
 - **Your notes are plain files.** Open them in any editor, or in Obsidian for links and graphs. Nothing is locked in a vendor.
-- **The rules travel with the notes.** A `_system/` folder in the vault tells any AI how to behave. Change AI tools and you lose nothing.
+- **The rules travel with the notes.** A `_system/` folder in the vault tells any AI how to behave. Change AI tools, or use two at once, and you lose nothing.
 - **You stay in control.** The AI shows you what it wants to change and waits. It never sends, submits, or logs anything outside the vault without your yes.
+
+## Use more than one AI on the same notes
+
+Many people end up with two assistants: one that is good at batch work (process a week of transcripts, update every account) and one that is convenient for quick questions (a separate chat per account for summaries and context switching). The usual problem is that each one keeps its own memory, so they drift apart and you become the copy-and-paste layer between them.
+
+**Here, neither assistant holds the memory. The vault does.**
+
+- **Every tool reads the same files and follows the same rules,** so an update made in one shows up in the other on the next `resume`.
+- **Per-account context without per-account chats.** `resume Acme` or `prep Acme` rebuilds an account's context in any tool, in any new chat, from the files. A chat window can close without losing anything.
+- **Use each tool for what it is good at,** and switch tools without losing anything.
+
+This has run day to day with two different AI tools writing the same vault. Two things make it work, and both are in the rules:
+
+- **One assistant per account at a time.** Shared files are coordinated by convention, not by locks. Before writing, an assistant checks whether the files changed in the last hour and stops to ask if another tool has been working that account.
+- **The tool has to be able to read the folder.** Desktop and editor-based assistants that open a local folder can read and write it. Office-suite assistants that only reach cloud storage may be limited to reading copies of the notes; check yours first (see [adapters/any-llm.md](adapters/any-llm.md)).
 
 ## Guardrails that come built in
 
