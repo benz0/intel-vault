@@ -22,7 +22,7 @@
 ## Feedback queue
 
 - Compare `publish_layout: flat` against `mirror` in a real Copilot Notebook.
-- Test `email-to-md.py` on a real Windows `.msg` (real Mac Outlook `.eml` files tested 2026-10-27: two threads, headers, signature, and quoted history converted correctly).
+- Test `email-to-md.py` on a real Windows `.msg`: plan in [msg-test-plan.md](msg-test-plan.md), not yet run (real Mac Outlook `.eml` files tested 2026-10-27: two threads, headers, signature, and quoted history converted correctly).
 
 ## Open design questions
 
