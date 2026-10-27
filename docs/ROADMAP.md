@@ -19,6 +19,11 @@
 4. **`personal-life` pack:** areas, one personal task list, sessions. No content shipped.
 5. **Microsoft 365 Copilot:** first pass shipped in v0.2 (publish, capture notes). Next: test on a real account and on the people-manager pack.
 
+## Feedback queue
+
+- Compare `publish_layout: flat` against `mirror` in a real Copilot Notebook.
+- Test `email-to-md.py` on a real Mac Outlook `.eml` and a real Windows `.msg` (tested so far on synthetic files and public sample `.msg` files).
+
 ## Open design questions
 
 - Should `AGENTS.md` be renamed for tools that look for other entry files (for example `CLAUDE.md`, `.github/copilot-instructions.md`)? Today each adapter points its tool at `AGENTS.md`.

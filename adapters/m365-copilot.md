@@ -62,6 +62,10 @@ Output one capture note in the format in _system/templates/capture.md.
 
 Paste the note into the vault's `_Inbox/`. The next `intake` or `wrap` by your writer assistant shows you the proposed changes and applies the ones you approve.
 
+## If Copilot struggles with the folder tree
+
+People have reported Copilot losing files in deep folder trees. Set `publish_layout: flat` in `_system/config.md` to publish every note at the top level with its path in the name (`Accounts - Acme - Current State.md`). **Experimental:** links between notes are not rewritten, and it has not been compared against the default layout in a real tenant yet.
+
 ## Limits to know
 
 - **Not every file gets read for every answer.** A notebook grounds on up to 300 of the most relevant files. For a large vault, reference the account's folder rather than the whole copy.

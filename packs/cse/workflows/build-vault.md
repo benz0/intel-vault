@@ -24,6 +24,15 @@ Staleness: N weeks since the newest source
 
 List every dated commitment in the sources that falls before today. Those are unknowns for the open-questions list, not milestones.
 
+## Phase 0b: seed from an export (if you have one)
+
+A customer-success platform or CRM export (Excel or CSV) is the fastest way to get history into a new account. If one is available:
+
+1. Put the export in `Accounts/{Account}/Sources/` with its export date in the filename.
+2. Convert it: `python3 _system/scripts/sheet-to-md.py <file> Accounts/{Account}/_derived/{Name}.md`.
+3. Use it as a dated source for history (timeline entries, renewal dates, sentiment changes). **Cite the export file and its export date,** never the `_derived/` copy.
+4. Treat it as a snapshot: anything in it is true as of the export date, not today.
+
 ## Before you build
 
 1. List what is in `Sources/` and flag anything that looks like excluded content (`20-data-handling.md`).
@@ -39,8 +48,8 @@ Run **one phase per conversation** for large accounts. Announce the phase and st
 | 2 | `Stakeholders/` files and `Stakeholder Index.md` |
 | 3 | Product folder notes and product/competitor files |
 | 4 | `Customer Intelligence Dashboard.md` |
-| 5 | `MEDDPICC.md` per product relationship |
-| 6 | `Account Plan.md` and `Success Plan.md` per product |
+| 5 | `CSE Dashboard.md`, and `MEDDPICC.md` per product relationship only if enabled |
+| 6 | `Success Plan.md` per product, and `Account Plan.md` only if enabled |
 | 7 | `Architecture.md` per product |
 | 8 | `Risks and Opportunities.md` per product |
 | 9 | `Action Tracker.md` |
@@ -73,7 +82,7 @@ Write `Accounts/{Account}/_Build Verification.md`:
 1. Unsourced claims
 2. Assumptions a reader might mistake for fact
 3. Conflicts left open
-4. Coverage gaps (MEDDPICC sections with no evidence, stakeholders with no role, products with no adoption data)
+4. Coverage gaps (MEDDPICC sections with no evidence, if enabled; stakeholders with no role, products with no adoption data)
 5. Sources not used, and why
 6. **Stale-as-current errors:** every past-dated event written as upcoming, and every "this week" or "soon" that is wrong as of today. Mandatory.
 7. Questions only the owner can answer

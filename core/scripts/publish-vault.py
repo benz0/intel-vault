@@ -11,6 +11,10 @@ storage client syncs. The vault stays the only copy anyone edits.
   - Skips everything in `publish_exclude` (vault-relative paths), hidden folders,
     and the export_*_dir folders.
   - Writes _PUBLISHED.md at the top of the copy with the publish time.
+  - publish_layout: mirror (default) keeps the folder tree. flat (experimental)
+    puts every file at the top level, named "Accounts - Acme - Current State.md",
+    for assistants that struggle with deep folders. Links between notes are not
+    rewritten in flat mode.
   - Refuses to publish into a non-empty folder that it did not create (no
     _PUBLISHED.md marker), so a typo cannot wipe an unrelated folder.
 
@@ -60,6 +64,9 @@ def main():
                  "Point publish_dir at an empty folder.")
 
     excludes = vaultlib.as_list(cfg.get("publish_exclude")) + vaultlib.export_dirs(cfg)
+    layout = (cfg.get("publish_layout") or "mirror").strip().lower()
+    if layout not in ("mirror", "flat"):
+        sys.exit(f"publish_layout must be mirror or flat, not {layout}")
 
     wanted = {}
     for cur, dirs, files in os.walk(vault):
@@ -70,7 +77,8 @@ def main():
             rel = os.path.join(rel_dir, f)
             if f == ".DS_Store" or excluded(rel, excludes) or rel == MARKER:
                 continue
-            wanted[rel] = os.path.join(vault, rel)
+            out = rel if layout == "mirror" else rel.replace(os.sep, " - ")
+            wanted[out] = os.path.join(vault, rel)
 
     copied, removed = [], []
     for rel, src in sorted(wanted.items()):
@@ -107,7 +115,7 @@ def main():
                 "Say how old this copy is when it matters, never claim to have updated a file, "
                 "and when the owner gives you new information, answer with a capture note in the "
                 "format in `_system/templates/capture.md`.\n\n"
-                f"Files: {len(wanted)}. Excluded paths: {', '.join(excludes) or 'none'}.\n"
+                f"Files: {len(wanted)}. Layout: {layout}. Excluded paths: {', '.join(excludes) or 'none'}.\n"
             )
     label = "Would publish" if dry else "Published"
     print(f"{label} to {dest}: {len(copied)} copied, {len(removed)} removed, "

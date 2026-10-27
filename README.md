@@ -27,6 +27,7 @@ If you run a book of accounts, you already know these:
 | **Before a call or QBR** | `prep Acme QBR` | A one-page brief: the one thing you must leave with, who's in the room and what they care about, what you owe them, landmines, questions to ask |
 | **Before a risk review** | `risk Acme` | A strict scorecard against your risk signals, plus a "credible plan" test on every open risk, and the questions your manager will ask |
 | **CS platform upkeep** | `gainsight Acme` | A timeline entry, sentiment change, or CTA drafted for you to paste. **It never touches the platform itself** |
+| **Catching up on a backlog** | `intake-batch` | Weeks of transcripts or saved emails processed in batches you approve, with a spot-check of each batch against the sources, and a checkpoint so you can stop and resume |
 | **Monday morning** | `brief` | Renewals inside 120 days, accounts gone quiet, what's in the vault but not yet in the platform |
 | **End of the day** | `wrap` | A session log, proposed status and task updates, and a prompt to log anything worth a mention at review time |
 | **Review season** | `review-prep FY26` | Your accomplishments with dates and numbers, sourced, plus a list of where the evidence is thin |
@@ -97,6 +98,17 @@ Every one of these exists because an AI got it wrong without it:
 - **Names are checked against the strongest source.** Transcripts misspell names and confuse two people with the same first name; the rules catch both.
 - **One task list.** Never a second one hiding in a meeting note.
 - **Real counts, not "looks clean."** A checker script counts broken links and banned characters, because AI tools report clean when it isn't.
+
+## What it costs
+
+**It can cost nothing beyond what your employer already provides.** The vault is plain files and the scripts are free. A no-cost setup:
+
+- **Transcripts:** the built-in transcription in your meeting tool (Teams, Zoom, Webex). Download or copy the transcript into `_Inbox/`.
+- **Email:** drag a message out of Outlook or Apple Mail as a `.eml` file (Windows Outlook saves `.msg`) into `_Inbox/`. `email-to-md.py` turns it into a source.
+- **Writer:** any AI assistant your employer provides that can open a folder on your computer.
+- **Reader (optional):** Microsoft 365 Copilot, reading the published copy.
+
+Paid tools (a meeting recorder that tags speakers and connects to your assistant, or a paid assistant plan) save time, but nothing here requires them.
 
 ## Works with your AI tool
 
@@ -185,4 +197,4 @@ Counts forbidden characters (minus any exact strings you exempt in `forbidden_ch
 
 ## Credits
 
-Account file templates adapted from Kwadwo Eck's account management assistant prompt, the starting point for this whole project. The session-memory loop is adapted from the Claude Code + Obsidian pattern shared on r/ClaudeAI.
+The workflow traces back to a demo by Eric Reeves (IBM/HashiCorp SE). Kwadwo Eck adapted it into an account management assistant prompt, and the account file templates here come from that prompt. The session-memory loop is adapted from the Claude Code + Obsidian pattern shared on r/ClaudeAI.

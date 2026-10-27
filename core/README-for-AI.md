@@ -39,6 +39,7 @@ Core commands:
 | `resume [n \| subject \| full]` | Reload recent context cheaply |
 | `wrap` | Save the session, update the task list and subject state |
 | `intake <subject>` | Process one transcript, email, chat thread, or note into the vault |
+| `intake-batch [folder]` | Work through a backlog in checked, resumable batches |
 | `prep <subject> <meeting type>` | Pre-meeting brief |
 | `brief` | Weekly roll-up across everything tracked |
 | `internal <type>` | Log a 1:1, team meeting, or other internal session |

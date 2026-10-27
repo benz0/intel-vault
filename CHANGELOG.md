@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.0 (2026-10-27)
+
+From a working session with two CSEs who run their own versions of this workflow.
+
+- **Email as a source:** `email-to-md.py` converts saved `.eml` and Outlook `.msg` files into markdown sources (attachments listed, not read). `.msg` needs `extract-msg`.
+- **`intake-batch`:** process a backlog in planned, resumable batches with a spot-check of each batch against its sources.
+- **CSE pack:** `MEDDPICC.md` and `Account Plan.md` are now opt-in (`cse_optional_files`). New `CSE Dashboard.md` template.
+- **`cs-update`:** activity fields up front (title, date, time, duration, internal and external attendees); never cite the source file or link contacts in the entry.
+- **`build-vault`:** seed history from a CRM or customer-success platform export.
+- **Publishing:** experimental `publish_layout: flat` for assistants that struggle with deep folders.
+- **README:** a no-cost setup, and credits.
+
 ## 0.2.0 (2026-10-27)
 
 - **Readers and writers.** `publish-vault.py` mirrors the vault one way into a cloud-synced folder (`publish_dir`) for assistants that cannot reach it, such as Microsoft 365 Copilot. `intake` and `wrap` publish automatically. `_system/local` and `_Internal` are excluded by default.

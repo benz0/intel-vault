@@ -30,6 +30,38 @@ One paragraph suitable for leadership.
 
 ---
 
+## CSE Dashboard.md
+
+One screen per account: health at a glance, then the links you open every week.
+
+```markdown
+---
+type: cse-dashboard
+account:
+last_sentiment_review: YYYY-MM-DD
+last_updated: YYYY-MM-DD
+---
+
+> Sources span YYYY-MM-DD to YYYY-MM-DD. Today is YYYY-MM-DD.
+
+# Health snapshot
+| Product | Sentiment | Consumption | Maturity | Risk | Program | Renewal |
+|---|---|---|---|---|---|---|
+| | green / yellow / red | band, e.g. 75-99% | e.g. standardizing, declining | none / type | none / name | YYYY-MM-DD |
+
+# Latest update
+(2-4 bullets from the newest Current State block, each dated and sourced)
+
+# Working links
+| Product | Success plan | Health check | Use cases | Consumption tracker | Feature requests |
+|---|---|---|---|---|---|
+
+# Watch list
+(What would change sentiment next, and when to check)
+```
+
+---
+
 ## Customer Intelligence Dashboard.md
 
 ```markdown
@@ -98,9 +130,9 @@ Path: `Accounts/{Account}/{Product}/{Name}.md`. Competitors live with the produc
 
 ---
 
-## MEDDPICC.md
+## MEDDPICC.md (optional)
 
-One per product relationship.
+Only when `cse_optional_files` includes `MEDDPICC`. One per product relationship.
 
 ```markdown
 # Metrics
@@ -118,7 +150,9 @@ Each section carries **Current Status / Evidence / Known Gaps / Confidence Level
 
 ---
 
-## Account Plan.md
+## Account Plan.md (optional)
+
+Only when `cse_optional_files` includes `Account Plan`.
 
 ```markdown
 # Relationship Summary

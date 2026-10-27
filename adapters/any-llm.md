@@ -32,4 +32,5 @@ external system without my yes for that specific action.
 - **Claude (desktop app, folder access):** install `adapters/claude/intel-vault` as a skill instead of pasting the prompt. Attach only the vault folder.
 - **Tools that only load rules or commands from their own folder:** set `export_rules_dir`, `export_skills_dir`, and `export_commands_dir` in `_system/config.md` to that tool's folders and run `python3 _system/scripts/export-agent-files.py`. Re-run it after every change to `_system/`. Never edit the exported copies; put your own rules in `_system/local/` instead.
 - **Microsoft 365 Copilot:** a read-only partner that works from a published copy in OneDrive or SharePoint and hands back capture notes. Tested on the demo vault; see [m365-copilot.md](m365-copilot.md).
+- **Saved emails:** drop `.eml` (Mac Outlook, Apple Mail, Gmail) or `.msg` (Windows Outlook) files into `_Inbox/` and run `python3 _system/scripts/email-to-md.py _Inbox`. `.msg` needs `pip install extract-msg`.
 - **Meeting transcripts that live only in Teams or another tool:** copy the transcript or recap into `_Inbox/` (or paste it into the conversation) and run `intake`.

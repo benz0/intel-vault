@@ -11,6 +11,21 @@ Draft content for the owner to paste into the platform named in `cs_platform`. *
 
 ## Timeline entry
 
+Start with the activity fields the platform asks for, filled from the meeting record or source:
+
+```
+Meeting title:        {exact title from the invite or source}
+Activity date:        YYYY-MM-DD
+Time:                 {start time, owner's timezone first}
+Duration:             {minutes}
+Internal attendees:   {names}
+External attendees:   {names}
+```
+
+- **Never cite the transcript or source file inside the entry.** The platform readers cannot open it.
+- **Never turn contact names into links.**
+- If a field is unknown, write "unknown" rather than guessing.
+
 ```
 [YYYY-MM-DD {owner_initials}] {One-line headline}
 

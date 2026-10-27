@@ -11,6 +11,7 @@
 └── Accounts/
     └── {Account}/
         ├── Current State.md                dated status blocks, newest first
+        ├── CSE Dashboard.md                one-screen health snapshot per product
         ├── Account Overview.md
         ├── Customer Intelligence Dashboard.md
         ├── Meeting Log.md
@@ -25,8 +26,8 @@
         │   └── Internal/
         └── {Product}/
             ├── {Account} {Product}.md      folder note
-            ├── MEDDPICC.md
-            ├── Account Plan.md
+            ├── MEDDPICC.md                 only if enabled (see below)
+            ├── Account Plan.md             only if enabled (see below)
             ├── Success Plan.md
             ├── Architecture.md
             ├── Products and Use Cases.md
@@ -35,6 +36,8 @@
 ```
 
 Templates for each file are in `_system/packs/cse/templates/account-files.md`.
+
+**Optional files.** `MEDDPICC.md` and `Account Plan.md` exist only when `cse_optional_files` in config lists them. If they are not enabled, do not create them, do not propose them, and leave their rows out of CHANGES DETECTED.
 
 **One folder per product relationship.** If an account owns two products, they get separate folders with separate MEDDPICC, plans, and risks. Product motions are distinct.
 
@@ -109,12 +112,13 @@ Always identify, explicitly: **champions, economic buyers, competitors' advocate
 When `intake` runs on an account, add these rows to CHANGES DETECTED:
 
 ```
-MEDDPICC movement:       ...
+Health changes:          ...   (sentiment, consumption, risk, program)
+MEDDPICC movement:       ...   (only if MEDDPICC is enabled)
 Architecture changes:    ...
 Platform updates owed:   ...
 ```
 
-and propagate to `MEDDPICC.md`, `Risks and Opportunities.md`, `Architecture.md`, `Action Tracker.md`, and `Account Overview.md` if the top-level picture moved. Then ask whether to run `cs-update` and say whether the meeting changes sentiment, health, or an open risk record.
+and propagate to `CSE Dashboard.md`, `MEDDPICC.md` (if enabled), `Risks and Opportunities.md`, `Architecture.md`, `Action Tracker.md`, and `Account Overview.md` if the top-level picture moved. Then ask whether to run `cs-update` and say whether the meeting changes sentiment, health, or an open risk record.
 
 ## Brief additions
 

@@ -9,6 +9,7 @@ config_keys:
   crm: Salesforce             # optional, for opportunity context
   products: []                # products you cover, e.g. [Vault Enterprise, Terraform Enterprise]
   competitors: []
+  cse_optional_files: []      # opt-in sales-style files: [MEDDPICC, Account Plan]
 ---
 
 # CSE pack
@@ -26,7 +27,9 @@ For anyone who owns the technical relationship with a set of customer accounts a
 | Workflow `risk` | Pressure-test an account's risk posture |
 | Workflow `cs-update` (alias `gainsight`) | Draft a timeline entry, sentiment change, or CTA |
 | Workflow `build-vault` | Build a full account from a folder of sources, in phases |
-| `templates/account-files.md` | Templates for every account file |
+| `templates/account-files.md` | Templates for every account file, including the CSE Dashboard |
+
+**MEDDPICC and Account Plan are off by default.** They are sales-qualification tools that many CSEs never use. Turn them on with `cse_optional_files: [MEDDPICC, Account Plan]` in config.
 
 ## Config
 

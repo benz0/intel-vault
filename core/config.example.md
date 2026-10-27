@@ -39,6 +39,7 @@ export_commands_dir:
 # OneDrive or SharePoint syncs, outside this vault. Runs after wrap and intake.
 publish_dir:
 publish_exclude: [_system/local, _Internal]
+publish_layout: mirror     # mirror (keep folders) or flat (experimental: one folder, names joined with " - ")
 ---
 
 # Vault configuration
