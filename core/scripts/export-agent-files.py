@@ -44,6 +44,15 @@ def is_generated(path):
     return vaultlib.BANNER in head
 
 
+def source_of(path):
+    try:
+        with open(path, encoding="utf-8") as fh:
+            m = re.search(r"<!-- Source: (.+?) -->", fh.read(4000))
+    except OSError:
+        return None
+    return m.group(1).strip() if m else None
+
+
 def with_banner(text, source_rel):
     note = f"{vaultlib.BANNER}\n<!-- Source: {source_rel} -->\n\n"
     if text.startswith("---"):
@@ -141,7 +150,10 @@ def main():
             with open(dest, "w", encoding="utf-8") as fh:
                 fh.write(content)
 
-    stale, stale_left = [], []
+    # A generated file this run did not plan is removed only when its source is gone.
+    # If the source still exists, another tool probably derived the file from one of
+    # ours (for example a tool that turns commands into skills): leave it and report it.
+    stale, stale_left, derived = [], [], []
     for d in targets.values():
         if not os.path.isdir(d):
             continue
@@ -149,6 +161,10 @@ def main():
             for f in files:
                 p = os.path.join(cur, f)
                 if p not in planned and f.endswith(".md") and is_generated(p):
+                    src = source_of(p)
+                    if src and os.path.exists(os.path.join(vault, src)):
+                        derived.append(rel(p))
+                        continue
                     stale.append(rel(p))
                     if not dry:
                         try:
@@ -164,6 +180,11 @@ def main():
         print(f"Generated files with no source any more: {len(stale)}" + (" (not removed, dry run)" if dry else ""))
         for p in stale:
             print(f"  - {p}")
+    if derived:
+        print(f"Left in place: {len(derived)} files carry our banner but were not written by this run; "
+              "their source still exists, so another tool likely derived them:")
+        for p in derived:
+            print(f"  = {p}")
     if stale_left:
         print("Could not delete these (filesystem refused). Delete them by hand:")
         for p in stale_left:

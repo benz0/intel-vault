@@ -57,8 +57,9 @@ def orphans(src, dst, skip_top=()):
         if rel.split(os.sep)[0] in skip_top:
             dirs[:] = []
             continue
+        dirs[:] = [d for d in dirs if d != "__pycache__"]
         for f in files:
-            if rel == "." and f in skip_top:
+            if (rel == "." and f in skip_top) or f.endswith(".pyc"):
                 continue
             if not os.path.exists(os.path.join(src, rel, f)):
                 out.append(os.path.join(dst, rel, f))

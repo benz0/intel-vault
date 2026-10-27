@@ -18,7 +18,8 @@ that path from the vault root.
 Raw source folders (`check_raw_dirs`, default [Sources]) are checked for links but not for
 forbidden characters: sources are saved unedited by design, so their characters are not errors.
 
-Links written with the extension (`[[Account Overview.md]]`) resolve like Obsidian resolves them.
+Links written with the extension (`[[Account Overview.md]]`) or as relative paths
+(`[[../Stakeholders/Jane Doe]]`) resolve the way Obsidian resolves them.
 
 Exit code 1 if anything is found.
 
@@ -86,13 +87,18 @@ def strip_code(text):
     return out
 
 
-def resolve(target, by_name, paths):
+def resolve(target, by_name, paths, here=""):
     t = target.strip().replace("\\", "")
     t = t.split("#", 1)[0].split("^", 1)[0].strip()
     if not t:
         return "ok", None
     if t.lower().endswith(".md"):
         t = t[:-3]
+    if t.startswith("./") or t.startswith("../"):
+        # relative to the linking file's folder, as Obsidian resolves it
+        t = os.path.normpath(os.path.join(here, t)).replace(os.sep, "/")
+        if t.startswith(".."):
+            return "missing", None
     if "/" in t:
         tl = t.lower()
         if tl in paths or (tl + ".md") in paths:
@@ -169,7 +175,7 @@ def main():
                 counts["links"] += 1
                 inner = m.group(1).replace("\\|", "|")
                 target, _, alias = inner.partition("|")
-                status, hit = resolve(target, by_name, paths)
+                status, hit = resolve(target, by_name, paths, os.path.dirname(rel))
                 if status == "missing":
                     counts["missing"] += 1
                     findings.append(f"{rel}:{n}: broken link [[{inner}]]")
