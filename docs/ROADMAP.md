@@ -11,11 +11,13 @@
 
 1. **Migrate the original CSE vault onto v0.1** (the dogfood test). Anything that breaks becomes a fix here.
 2. **`se` pack:** opportunity folders, MEDDPICC as the spine, deal reviews, CRM updates drafted for the owner to paste (no CRM connector assumed).
-3. **`people-manager` pack:** shaped by an interview with the first user. Expected pieces:
-   - `Team/{Name}/` per direct report: 1:1 notes, goals, coaching, wins, follow-ups owed
+3. **`people-manager` pack:** first phase shipped in v0.4.0, shaped by an interview with the first user (`docs/design/people-manager-requirements.md`). Shipped: `Team/{Name}/` (Current State, 1-1s, Retrain List), the hard boundary on HR and personal matters, retrain routing from team-meeting intake, the extra inbox buckets, and the core `inbox` and `wins-backfill` workflows. Not yet run with a real assistant: see `docs/inbox-acceptance.md`. Next phases:
+   - `prep` for a 1:1 pulls open retrain items, escalations, and follow-ups owed for that person; `brief` flags anyone not met within `one_on_one_days` (the key exists, nothing reads it yet)
+   - `review-prep` defaults to a twice-yearly cycle and groups evidence by the owner's goals plan
    - `Accounts/` for accounts the manager assists on
-   - Teams transcripts brought in by paste or via `_Inbox/`
-   - strict defaults for HR-sensitive content
+   - Transcripts brought in by paste or via `_Inbox/`
+   - Open questions from the interview: can the mail connector read flagged status (test before promising a flagged-mail sweep), and do team-meeting transcripts come through the connector or by paste
+   - **Collections fields (aging, disputes, AR-platform events):** per-customer tracking for a receivables team. Separate item, deliberately kept out of core and out of this pack until there is a design for it.
 4. **`personal-life` pack:** areas, one personal task list, sessions. No content shipped.
 5. **Microsoft 365 Copilot:** first pass shipped in v0.2 (publish, capture notes). Next: test on a real account and on the people-manager pack.
 

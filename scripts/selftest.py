@@ -19,9 +19,23 @@ Builds throwaway vaults in a temp folder (nothing outside it is touched) and che
      7b. It also reports a .eml or .msg left in _Inbox/ whose markdown copy is already in a
      Sources/ folder (found by the "# Original file:" line), and does not flag an email
      whose copy is still waiting in the inbox.
+  9. The people-manager pack and the inbox workflows:
+     9a. new-vault.py --packs people-manager builds a clean vault with Team/ and the pack's
+         config keys plus priority_senders.
+     9b. The exporter writes inbox, its alias triage, and wins-backfill, and a second
+         export changes nothing.
+     9c. The pack installs alongside cse: both subject folders, both rule files exported,
+         and the vault checks clean.
+     9d. examples/demo-inbox/ holds 8 to 10 .eml files that all convert, and
+         docs/inbox-acceptance.md names every one of them (and no file that is missing).
+     9e. The hard boundary is marked in the pack, the exception is in the boot order, and
+         the inbox workflow carries the never-send and count-only rules.
   8. The repo itself: no forbidden characters in tracked or new text files (except the
      signature divider), and none of the words in .git/info/banned-words, if that
      file exists. Keep that file out of the repo; it never gets committed.
+     8c. No receivables-specific terms (aging, disputes, collectors, receivables,
+         collections) in core/ or packs/people-manager/. Product and employer names are
+         not machine-checked; read the diff for them.
 
 Prints PASS or FAIL per check and exits 1 on any failure. Needs only Python 3.
 """
@@ -210,6 +224,86 @@ def main():
         check("7b. checker flags emails left in _Inbox/ after filing, and not ones still waiting",
               found and cleared, f"found={found} cleared={cleared} {out[-200:]} {out2[-200:]}")
 
+        # 9. people-manager pack and the inbox workflows
+        pm = os.path.join(tmp, "pm")
+        code, out = run(os.path.join(REPO, "scripts", "new-vault.py"), pm, "--packs", "people-manager",
+                        "--no-em-dash", "--owner", "Test Owner", "--initials", "TO", "--tz", "America/New_York")
+        cfg_text = open(os.path.join(pm, "_system", "config.md"), encoding="utf-8").read() if code == 0 else ""
+        keys = ("report_term: direct report", "one_on_one_days: 14", "escalation_chain: []", "priority_senders: []",
+                "packs: [people-manager]")
+        missing = [k for k in keys if k not in cfg_text]
+        code_c, out_c = run(os.path.join(pm, "_system", "scripts", "check-vault.py"), "--quiet", pm)
+        check("9a. people-manager vault builds clean with Team/ and its config keys",
+              code == 0 and os.path.isdir(os.path.join(pm, "Team")) and not missing and code_c == 0,
+              f"missing={missing} {out[-150:]} {out_c[-150:]}")
+
+        if code != 0 or not os.path.isfile(os.path.join(pm, "_system", "config.md")):
+            print("selftest: stopping after 9a, the people-manager vault was not built.")
+            failed = results.count(False)
+            print(f"\n{len(results) - failed}/{len(results)} passed.")
+            sys.exit(1)
+        set_config(pm, export_rules_dir=".tool/rules", export_skills_dir=".tool/skills",
+                   export_commands_dir=".tool/commands", export_alias_skills="true")
+        exporter_pm = os.path.join(pm, "_system", "scripts", "export-agent-files.py")
+        code, out = run(exporter_pm, pm)
+        skills_pm = set(os.listdir(os.path.join(pm, ".tool", "skills"))) if code == 0 else set()
+        cmds_pm = set(os.listdir(os.path.join(pm, ".tool", "commands"))) if code == 0 else set()
+        need_skills = {"inbox", "triage", "wins-backfill"}
+        need_cmds = {"inbox.md", "triage.md", "wins-backfill.md"}
+        code2, out2 = run(exporter_pm, pm)
+        check("9b. export includes inbox, triage and wins-backfill, and a second export changes nothing",
+              code == 0 and need_skills <= skills_pm and need_cmds <= cmds_pm
+              and code2 == 0 and out2.startswith("Wrote 0 files"),
+              f"missing skills={sorted(need_skills - skills_pm)} cmds={sorted(need_cmds - cmds_pm)} {out2[:120]}")
+
+        both = os.path.join(tmp, "both")
+        code, out = run(os.path.join(REPO, "scripts", "new-vault.py"), both, "--packs", "cse,people-manager",
+                        "--no-em-dash", "--owner", "Test Owner", "--initials", "TO", "--tz", "America/New_York")
+        set_config(both, export_rules_dir=".tool/rules")
+        code_e, out_e = run(os.path.join(both, "_system", "scripts", "export-agent-files.py"), both)
+        rules_both = os.listdir(os.path.join(both, ".tool", "rules")) if code_e == 0 else []
+        have_rules = any(f.endswith("people-management.md") for f in rules_both) \
+            and any(f.endswith("customer-success.md") for f in rules_both)
+        code_c, out_c = run(os.path.join(both, "_system", "scripts", "check-vault.py"), "--quiet", both)
+        check("9c. people-manager installs alongside cse",
+              code == 0 and os.path.isdir(os.path.join(both, "Accounts")) and os.path.isdir(os.path.join(both, "Team"))
+              and "packs: [cse, people-manager]" in open(os.path.join(both, "_system", "config.md"), encoding="utf-8").read()
+              and have_rules and code_e == 0 and code_c == 0,
+              f"rules={sorted(rules_both)[:8]} {out[-100:]} {out_e[-100:]} {out_c[-100:]}")
+
+        demo = os.path.join(REPO, "examples", "demo-inbox")
+        emls = sorted(f for f in os.listdir(demo) if f.endswith(".eml")) if os.path.isdir(demo) else []
+        scratch = os.path.join(tmp, "demo-inbox")
+        if os.path.isdir(demo):
+            shutil.copytree(demo, scratch)
+            code, out = run(os.path.join(pm, "_system", "scripts", "email-to-md.py"), scratch)
+        else:
+            code, out = 1, "examples/demo-inbox is missing"
+        converted = len([f for f in os.listdir(scratch) if f.endswith(".md")]) if os.path.isdir(scratch) else 0
+        acc_path = os.path.join(REPO, "docs", "inbox-acceptance.md")
+        acc = open(acc_path, encoding="utf-8").read() if os.path.isfile(acc_path) else ""
+        named = set(re.findall(r"`(\d\d-[a-z0-9\-]+\.eml)`", acc))
+        ok = 8 <= len(emls) <= 10 and code == 0 and converted == len(emls) \
+            and named == set(emls)
+        check("9d. demo-inbox has 8 to 10 convertible emails, all named in the acceptance doc",
+              ok, f"files={len(emls)} converted={converted} unnamed={sorted(set(emls) - named)} "
+                  f"unknown={sorted(named - set(emls))} {out[-100:]}")
+
+        rule_p = os.path.join(REPO, "packs", "people-manager", "rules", "30-people-management.md")
+        rule = open(rule_p, encoding="utf-8").read() if os.path.isfile(rule_p) else ""
+        boot = open(os.path.join(REPO, "core", "README-for-AI.md"), encoding="utf-8").read()
+        inbox_p = os.path.join(REPO, "core", "workflows", "inbox.md")
+        inbox = open(inbox_p, encoding="utf-8").read() if os.path.isfile(inbox_p) else ""
+        checks_9e = {
+            "pack marks HARD BOUNDARY": "HARD BOUNDARY" in rule and "cannot loosen" in rule.lower(),
+            "boot order has the exception": "HARD BOUNDARY" in boot and "cannot be loosened" in boot,
+            "inbox: never send/draft/move/flag": all(w in inbox for w in ("Send", "Draft", "Move, flag, label")),
+            "inbox: count-only skip": "counted only" in inbox.lower() and "Never quote" in inbox,
+            "inbox: one bucket per email": "exactly one" in inbox,
+        }
+        bad_9e = [k for k, v in checks_9e.items() if not v]
+        check("9e. hard boundary, exception, and inbox safety rules are all present", not bad_9e, "; ".join(bad_9e))
+
         # 8. repo hygiene
         # tracked files plus new files not yet added (so a check before "git add" still sees them)
         files = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard"],
@@ -232,6 +326,17 @@ def main():
                     word_hits.append(f"{f}: {w}")
         check("8a. no forbidden characters in the repo", not char_hits, ", ".join(char_hits[:10]))
         check(f"8b. no banned words in the repo ({len(banned)} words listed)", not word_hits, ", ".join(word_hits[:10]))
+        ar = re.compile(r"\b(aging|disputes?|collectors?|receivables?|collections?)\b", re.I)
+        ar_hits = []
+        for f in filter(None, files):
+            if not (f.startswith("core/") or f.startswith("packs/people-manager/")):
+                continue
+            p = os.path.join(REPO, f)
+            if os.path.isfile(p) and os.path.splitext(f)[1] in (".md", ".py", ".txt", ".yaml", ".yml", ""):
+                for n, line in enumerate(open(p, encoding="utf-8", errors="replace"), 1):
+                    if ar.search(line):
+                        ar_hits.append(f"{f}:{n}")
+        check("8c. no receivables terms in core/ or packs/people-manager/", not ar_hits, ", ".join(ar_hits[:10]))
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

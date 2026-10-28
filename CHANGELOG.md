@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.4.0 (2026-10-27)
+
+First phase of the people-manager work, from `docs/design/people-manager-requirements.md`.
+
+- **New core workflow `inbox` (alias `triage`):** sorts email from the tool's connector, saved `.eml`/`.msg` files, or pasted text into one bucket each (asks from the manager or `priority_senders`, needs my reply, follow-ups owed to me, win candidates, FYI), shows a table with counts that add up, and stops. On a yes: tasks to the task list with the email as source, others' commitments under Waiting on others, win candidates proposed for the accomplishments log. Never sends, drafts in the mail client, moves, flags, labels, or deletes without a yes for that specific action. Anything the data rules exclude is counted only and never quoted, summarized, or named. It does not assume the connector can read flagged or read status. Packs add buckets in an `## Inbox buckets` section.
+- **New core workflow `wins-backfill`:** reads a wins source once, in checkpointed batches like `intake-batch`, and proposes accomplishments entries outcome-first with date and evidence. Skips entries already in the log; the owner approves each one.
+- **New config key `priority_senders: []`** (optional; missing means empty, so existing vaults are unaffected).
+- **Last-run marker:** `wrap` and the session template now record `**Inbox run:** YYYY-MM-DD to YYYY-MM-DD` in the Quick Reference block, which is how `inbox` finds "since the last inbox run".
+- **Hard boundaries:** a rule marked `HARD BOUNDARY` in core or a pack cannot be loosened by a local rule. Stated in `core/README-for-AI.md`, the `README.md` customizing section, and the any-LLM starter prompt. Why: the boot order said local rules "always win", so a pack rule that must not be overridden could not be written. Exported rule files sort by number first, so order alone does not make local rules win there either.
+- **New pack `people-manager`:** `Team/{Name}/` with `Current State.md`, `1-1s/`, `Retrain List.md`; config keys `report_term`, `one_on_one_days`, `escalation_chain`; a suggested `data_policy` line; rule `30-people-management.md` with the hard boundary (HR matters, team members' personal struggles, and issues between team members never go in the vault, from any source; skipped parts are counted with no detail), retrain routing from team-meeting intake, and two extra inbox buckets (escalation requests from team, retrain items); templates in `team-files.md`. It installs alongside `cse`.
+- **Adapters:** the Claude skill description and the any-LLM starter prompt list `inbox` and `wins-backfill`.
+- **`examples/demo-inbox/`:** ten fictional emails covering every bucket, one that must be skipped entirely, and one that is partly skipped. **`docs/inbox-acceptance.md`:** the expected bucket for each file in two configurations, and pass criteria (the skipped file is never quoted, only counted; a mechanical grep for leaks).
+- **`scripts/selftest.py`** checks 9a to 9e (pack builds clean with `Team/`; export includes inbox, triage, wins-backfill; installs alongside `cse`; demo inbox converts and matches the acceptance doc; boundary and inbox safety text present) and 8c (no receivables terms in `core/` or `packs/people-manager/`).
+- **Not yet verified:** no assistant has run `inbox` or `wins-backfill`, and the mail connector path is untested. The self-test checks structure and wording only. `docs/inbox-acceptance.md` is the manual test.
+- `docs/ROADMAP.md`: first phase marked shipped, next phases listed, and "collections fields (aging, disputes, AR-platform events)" added as a separate item.
+
 ## 0.3.7 (2026-10-27)
 
 - **`check-vault.py`:** reports **Leftover emails**: a `.eml` or `.msg` still in `inbox_dir` (default `_Inbox`) whose markdown copy is already in a `Sources/` folder. The copy is matched by its `# Original file:` line, not by file name. A leftover makes the exit code 1. It runs on every check, whatever paths are passed. Why: after intake the inbox should hold nothing already filed; moving the markdown copy but not the original left it behind with no count to show it.

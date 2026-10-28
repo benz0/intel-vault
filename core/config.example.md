@@ -9,6 +9,7 @@ owner_initials:        # e.g. JL (used to sign CRM and timeline entries)
 owner_role:            # e.g. Customer Success Engineer
 organization:          # employer or team
 manager:               # who the owner reports to
+priority_senders: []   # people whose email always counts as an ask, besides the manager (used by the inbox workflow), e.g. [Pat Smith, pat@example.com]
 timezone:              # IANA name, e.g. America/New_York. All times are stated in this zone first.
 
 forbidden_chars: []    # characters that must never appear in vault files, e.g. [U+2014] for em dashes

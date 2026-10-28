@@ -9,11 +9,12 @@ A tool-neutral spec for a markdown "intel vault", plus scripts that install and 
 | Folder | Holds | Installed to |
 |---|---|---|
 | `core/` | rules, workflows, templates, scripts every vault gets | `_system/` |
-| `packs/{name}/` | role add-ons (`cse` today) | `_system/packs/{name}/` |
+| `packs/{name}/` | role add-ons (`cse`, `people-manager`) | `_system/packs/{name}/` |
 | `adapters/` | setup notes per AI tool | `_system/adapters/` |
 | `scripts/` | `new-vault.py`, `update-vault.py`, `selftest.py` (run from the repo) | not installed |
 | `docs/` | `MIGRATING.md`, `ROADMAP.md`, design notes | not installed |
 | `examples/demo-vault/` | a fictional vault (Bluefin Logistics) | not installed |
+| `examples/demo-inbox/` | ten fictional emails for checking the `inbox` workflow by hand (`docs/inbox-acceptance.md`) | not installed |
 
 ## House rules
 
@@ -37,7 +38,7 @@ A tool-neutral spec for a markdown "intel vault", plus scripts that install and 
 
 ## The self-test
 
-`scripts/selftest.py` builds throwaway vaults in a temp folder and checks install, export (and that a second export changes nothing), update, adopt, email conversion, the checker, and the repo itself. It never touches a real vault.
+`scripts/selftest.py` builds throwaway vaults in a temp folder and checks install, export (and that a second export changes nothing), update, adopt, email conversion, the checker, the people-manager pack and inbox workflows, and the repo itself. It checks structure and safety text only; whether an assistant sorts mail correctly is checked by a person with `docs/inbox-acceptance.md`. It never touches a real vault.
 
 **Banned words:** to keep a name out of the repo without writing it into the repo, list it in `.git/info/banned-words`, one per line. That file lives inside `.git/` and is never committed. Check 8b fails if any tracked file contains one.
 
