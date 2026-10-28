@@ -9,6 +9,8 @@ argument-hint: "[date range]"
 
 Email is where asks, promises, and wins get lost. This workflow reads a stretch of mail, sorts every message into one bucket, shows the result, and stops. It changes nothing until the owner says yes.
 
+To file a backlog of saved emails into the vault, use `intake-batch`; this workflow sorts and proposes, it does not file.
+
 ## 1. Pick the date range
 
 The argument is a date range ("this week", "2026-10-20 to 2026-10-27"). With no argument, use **since the last inbox run**:

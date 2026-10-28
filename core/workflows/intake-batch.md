@@ -1,6 +1,6 @@
 ---
 name: intake-batch
-description: Work through a backlog of sources (weeks of transcripts, a folder of saved emails) in checked batches instead of one giant pass. Use when the owner says "process my inbox", "catch up on these transcripts", "batch intake", or drops many files at once.
+description: Work through a backlog of saved sources (weeks of transcripts, a folder of saved emails) in checked batches instead of one giant pass, filing each into the vault. Use when the owner says "catch up on these transcripts", "batch intake", "file this backlog", or drops many files at once.
 aliases: [batch-intake, process-inbox]
 argument-hint: "[folder]"
 ---
