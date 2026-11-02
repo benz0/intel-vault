@@ -19,6 +19,11 @@ Builds throwaway vaults in a temp folder (nothing outside it is touched) and che
      7b. It also reports a .eml or .msg left in _Inbox/ whose markdown copy is already in a
      Sources/ folder (found by the "# Original file:" line), and does not flag an email
      whose copy is still waiting in the inbox.
+     7c. A copy whose header has "# Original withheld:" makes its original a "withheld
+     original": reported as "delete this original, never move it into Sources", counted
+     apart from ordinary leftovers, and an ordinary leftover keeps its own message. A copy
+     with only a body marker ("[2 parts removed under data rules]") and no header line is
+     treated as withheld too.
   9. The people-manager pack and the inbox workflows:
      9a. new-vault.py --packs people-manager builds a clean vault with Team/ and the pack's
          config keys plus priority_senders.
@@ -29,7 +34,9 @@ Builds throwaway vaults in a temp folder (nothing outside it is touched) and che
      9d. examples/demo-inbox/ holds 8 to 10 .eml files that all convert, and
          docs/inbox-acceptance.md names every one of them (and no file that is missing).
      9e. The hard boundary is marked in the pack, the exception is in the boot order, and
-         the inbox workflow carries the never-send and count-only rules.
+         the inbox workflow carries the never-send and count-only rules; inbox, intake and
+         intake-batch carry the closing line for excluded saved emails; intake writes the
+         withheld header line.
      9f. The conversion command written in inbox.md, run on the demo emails in a vault's
          _Inbox, leaves the vault byte-identical (no new .md files); the same command without
          --out does write them (control). wins-backfill, intake and intake-batch also use --out.
@@ -227,6 +234,46 @@ def main():
         check("7b. checker flags emails left in _Inbox/ after filing, and not ones still waiting",
               found and cleared, f"found={found} cleared={cleared} {out[-200:]} {out2[-200:]}")
 
+        # 7c. withheld originals: a partly excluded email's original is deleted, never moved
+        write(os.path.join(inbox_v, "partly.eml"),
+              "From: Pat Doe <pat@example.com>\nSubject: Partly thread\n"
+              "Date: Wed, 28 Oct 2026 10:00:00 -0400\nContent-Type: text/plain\n\nHi\n")
+        write(os.path.join(inbox_v, "plain.eml"),
+              "From: Pat Doe <pat@example.com>\nSubject: Plain thread\n"
+              "Date: Thu, 29 Oct 2026 10:00:00 -0400\nContent-Type: text/plain\n\nHi\n")
+        write(os.path.join(sources, "2026-10-28 Email Pat Doe Partly thread.md"),
+              "# Source: Email, Partly thread\n# Type: email\n# Original file: partly.eml\n"
+              "# Original withheld: contained excluded content, delete it\n"
+              "[1 parts removed under data rules]\n\nbody\n")
+        write(os.path.join(sources, "2026-10-29 Email Pat Doe Plain thread.md"),
+              "# Source: Email, Plain thread\n# Type: email\n# Original file: plain.eml\n\nbody\n")
+        # marker in the body only, no "# Original withheld:" header line
+        write(os.path.join(inbox_v, "markeronly.eml"),
+              "From: Pat Doe <pat@example.com>\nSubject: Marker only\n"
+              "Date: Fri, 30 Oct 2026 10:00:00 -0400\nContent-Type: text/plain\n\nHi\n")
+        write(os.path.join(sources, "2026-10-30 Email Pat Doe Marker only.md"),
+              "# Source: Email, Marker only\n# Type: email\n# Original file: markeronly.eml\n\n"
+              "[2 parts removed under data rules]\n\nbody\n")
+        code, out = run(checker, v)
+        lines = out.splitlines()
+        w_line = next((l for l in lines if l.startswith("_Inbox/partly.eml")), "")
+        o_line = next((l for l in lines if l.startswith("_Inbox/plain.eml")), "")
+        ok_w = ("delete this original" in w_line and "never move it into Sources" in w_line
+                and "move or delete" not in w_line and "leftover email" not in w_line)
+        m_line = next((l for l in lines if l.startswith("_Inbox/markeronly.eml")), "")
+        ok_m = ("delete this original" in m_line and "never move it into Sources" in m_line
+                and "move or delete" not in m_line and "leftover email" not in m_line)
+        ok_o = "leftover email" in o_line and "move or delete" in o_line and "withheld" not in o_line
+        ok_counts = "Leftover emails: 1" in out and "Withheld originals to delete: 2" in out and code == 1
+        os.remove(os.path.join(inbox_v, "partly.eml"))
+        os.remove(os.path.join(inbox_v, "plain.eml"))
+        os.remove(os.path.join(inbox_v, "markeronly.eml"))
+        code2, out2 = run(checker, "--quiet", v)
+        cleared = code2 == 0 and "Withheld originals to delete: 0" in out2
+        check("7c. checker tells you to delete a withheld original, never to move it, and counts it apart from ordinary leftovers",
+              ok_w and ok_m and ok_o and ok_counts and cleared,
+              f"withheld line={w_line!r} marker-only line={m_line!r} ordinary line={o_line!r} {out[-160:]}")
+
         # 9. people-manager pack and the inbox workflows
         pm = os.path.join(tmp, "pm")
         code, out = run(os.path.join(REPO, "scripts", "new-vault.py"), pm, "--packs", "people-manager",
@@ -304,6 +351,14 @@ def main():
             "inbox: count-only skip": "counted only" in inbox.lower() and "Never quote" in inbox,
             "inbox: one bucket per email": "exactly one" in inbox,
         }
+        closing = "saved emails in _Inbox/ were excluded; delete them from the vault yourself"
+        for wf in ("inbox.md", "intake.md", "intake-batch.md"):
+            t = open(os.path.join(REPO, "core", "workflows", wf), encoding="utf-8").read()
+            checks_9e[f"{wf}: closing line for excluded saved emails, never named, no delete without yes"] = (
+                closing in t and "Never name them" in t and "without a yes" in t)
+        intake_t = open(os.path.join(REPO, "core", "workflows", "intake.md"), encoding="utf-8").read()
+        checks_9e["intake: writes the Original withheld header line"] = (
+            "# Original withheld: contained excluded content, delete it" in intake_t)
         bad_9e = [k for k, v in checks_9e.items() if not v]
         check("9e. hard boundary, exception, and inbox safety rules are all present", not bad_9e, "; ".join(bad_9e))
 

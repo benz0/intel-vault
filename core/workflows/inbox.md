@@ -39,6 +39,7 @@ Before sorting, check each message against `20-data-handling.md`, the `data_poli
 - **Anything excluded is counted only,** in one line at the end: `Skipped 3 under data rules.`
 - **Never quote, summarize, paraphrase, or name the sender or subject** of a skipped message, in the table, in a task, in the session log, or anywhere else. Do not say what kind of matter it was beyond the count.
 - A message that is partly excluded: use the parts that are not, and count the message as partly skipped. Say how many, with no detail.
+- **Saved emails skipped entirely:** after the table, add one line: `N saved emails in _Inbox/ were excluded; delete them from the vault yourself (they are the ones not listed above).` Never name them or say what they were about. Never delete them without a yes for that action. (Leave out the line when the source was the connector or pasted text; nothing was saved in the vault.)
 
 ## 4. Sort every message into one bucket
 
