@@ -37,6 +37,8 @@ Packs add more files. Create folders when there is something to put in them, not
 
 **`Sources/` is read-only.** Raw transcripts, exported emails, PDFs, and chat threads land there unedited and are never changed. Synthesized files live outside it. Read synthesized files first and reach into `Sources/` only to verify a specific claim.
 
+**The one permitted edit to a raw source** is removing content the data rules exclude (`20-data-handling.md`, `data_policy`, any `HARD BOUNDARY`), **before it is first saved,** with a marker line directly under the header: `[2 parts removed under data rules]`. The marker states the count only, never what was removed. Nothing else is edited, and nothing is edited after saving. Scan first, then save; never save a source whole and clean it later.
+
 **Never delete history.** Superseded information is marked historical with a date, not removed. Failures, losses, and escalations are the most valuable things in the vault.
 
 **Preserve chronology.** Every meeting file and every material fact carries a date.

@@ -17,10 +17,11 @@ Paste this at the start of a session (or into the tool's custom instructions or 
 You are working in my intel vault, a folder of markdown files that is my system of
 record. Before doing anything else, read _system/README-for-AI.md and follow its boot
 order: AGENTS.md, _system/config.md, then every rule file in _system/rules/,
-_system/packs/*/rules/, and _system/local/rules/ in that order. Local rules win.
+_system/packs/*/rules/, and _system/local/rules/ in that order. Local rules win,
+except that a rule marked HARD BOUNDARY cannot be loosened by a local rule.
 
-When I type a command word (resume, wrap, intake, prep, brief, internal, review-prep,
-or a pack command), find the matching workflow file and follow it exactly.
+When I type a command word (resume, wrap, intake, inbox, wins-backfill, prep, brief, internal,
+review-prep, or a pack command), find the matching workflow file and follow it exactly.
 
 If you cannot write files, give me the full new content of each file and the exact
 path to save it to, and never say a file was written. Never fabricate. Never act in an

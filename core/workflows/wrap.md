@@ -13,6 +13,8 @@ Write `{sessions_dir}/YYYY-MM-DD-{short-topic}.md` from `_system/templates/sessi
 
 **The Quick Reference block is for fast scanning.** Resume reads only that block, which keeps the reload cheap. Write it so it stands alone.
 
+If the `inbox` workflow ran this session, add the line `**Inbox run:** YYYY-MM-DD to YYYY-MM-DD` to the Quick Reference block, with the date range it covered. The next `inbox` run starts after that end date.
+
 The session log is a record, **not a task list**. Tasks go to the task list.
 
 ## 2. Propose the updates, then show them

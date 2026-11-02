@@ -12,10 +12,12 @@ This folder (`_system/`) is the operating spec for an intel vault: a folder of p
 
 1. **`AGENTS.md`** at the vault root. Current state: what is in flight, one row per subject. Small on purpose.
 2. **`_system/config.md`**. Who the owner is, their timezone, which packs are installed, and where the key files live. Every rule below refers to paths by their config name (for example **the task list** means the file named in `task_list`).
-3. **Every rule file, in this order.** Later files win where they conflict:
+3. **Every rule file, in this order.** Later files win where they conflict, with one exception (below):
    1. `_system/rules/*.md` (core)
    2. `_system/packs/{pack}/rules/*.md` (one folder per installed pack)
-   3. `_system/local/rules/*.md` (the owner's own overrides; always win)
+   3. `_system/local/rules/*.md` (the owner's own overrides; they win over the two layers above, except for hard boundaries)
+
+   **Hard boundaries.** A rule marked `HARD BOUNDARY` in core or in a pack cannot be loosened, narrowed, or removed by a local rule. If a local rule conflicts with one, follow the boundary and tell the owner which local rule you did not apply. A local rule may add restrictions beyond a boundary. This holds when your tool loads rules from its own folder in a different order.
 4. **Read nothing else yet.** Load workflows and subject files only when the task needs them.
 
 Some tools load rules from their own folder instead. If `export_rules_dir` is set in config, that folder holds generated copies of these same files (made by `_system/scripts/export-agent-files.py`). Never edit the copies.
@@ -43,6 +45,8 @@ Core commands:
 | `prep <subject> <meeting type>` | Pre-meeting brief |
 | `brief` | Weekly roll-up across everything tracked |
 | `internal <type>` | Log a 1:1, team meeting, or other internal session |
+| `inbox [date range]` (alias `triage`) | Sort email into what needs attention, show a table, and stop for the owner's yes |
+| `wins-backfill [source]` | Turn a folder of past wins into accomplishments-log entries, in checked batches |
 | `review-prep [period]` | Assemble evidence for a review from the accomplishments log |
 
 Packs add more (for example the CSE pack adds `risk`, `cs-update`, `build-vault`). List them by reading the workflow folders. If the owner uses a command that has no workflow file, say so and list the ones that exist.
@@ -72,7 +76,7 @@ These are in the rule files in detail. They are repeated here because breaking t
 1. **Never fabricate.** No invented names, dates, ticket numbers, links, quotes, or citations. "I don't know" is a correct answer.
 2. **Draft, show, wait.** Never send, submit, log, or change anything in an external system (email, CRM, chat, ticketing) without the owner's explicit yes for that specific action.
 3. **One task list.** The file named in `task_list` is the only place the owner's tasks live. Every task has a source and a date.
-4. **`Sources/` is read-only.** Raw material is saved unedited and never changed.
+4. **`Sources/` is read-only.** Raw material is saved as received and never changed. The one exception: content the data rules exclude is removed before the first save, with a marker line (`40-vault-conventions.md`).
 5. **Check today's date before writing.** Never write a past-dated event as upcoming.
 6. **The disk is authoritative,** not your memory of it. Re-read a file right before editing it.
 7. **Know which subject you are writing to.** If more than one could be meant, ask.

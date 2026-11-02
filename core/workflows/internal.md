@@ -21,9 +21,10 @@ Internal meetings are about the owner's own work. They go in the folder named in
 
 ## Logging an internal meeting
 
-1. Save the raw source to `{internal_dir}/Sources/`, unedited.
-2. Write `{internal_dir}/{folder}/YYYY-MM-DD {name}.md` from `_system/templates/internal-meeting.md`.
-3. Then, in order, and show each proposed change before writing:
+1. **Scan for excluded content before saving anything** (`20-data-handling.md`, the `data_policy` line in config, and any `HARD BOUNDARY` in an installed pack or local rule). Tell the owner how many parts were found and what kind, without repeating them (where a rule says count only, give only the count). Remove those parts, and put one marker line directly under the source header: `[2 parts removed under data rules]`, with the real count and no detail. If the whole source is excluded, save nothing and write nothing from it. This removal is the only edit ever made to a raw source (`40-vault-conventions.md`).
+2. Save the raw source to `{internal_dir}/Sources/`, as received except for what step 1 removed.
+3. Write `{internal_dir}/{folder}/YYYY-MM-DD {name}.md` from `_system/templates/internal-meeting.md`.
+4. Then, in order, and show each proposed change before writing:
    1. **Every commitment the owner made goes to the task list** with source and date. A commitment made in a 1:1 is as real as one made to a customer.
    2. **Anything review-worthy goes to the accomplishments log** (rules below).
    3. **Any praise the owner received goes to the feedback log,** one row per instance, newest first: date, who, their words (quote when the source has them), context, source file. Praise only; coaching stays in the meeting note. Do this for chat and email too, whenever you see it.

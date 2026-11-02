@@ -1,6 +1,6 @@
 ---
 name: intake-batch
-description: Work through a backlog of sources (weeks of transcripts, a folder of saved emails) in checked batches instead of one giant pass. Use when the owner says "process my inbox", "catch up on these transcripts", "batch intake", or drops many files at once.
+description: Work through a backlog of saved sources (weeks of transcripts, a folder of saved emails) in checked batches instead of one giant pass, filing each into the vault. Use when the owner says "catch up on these transcripts", "batch intake", "file this backlog", or drops many files at once.
 aliases: [batch-intake, process-inbox]
 argument-hint: "[folder]"
 ---
@@ -11,7 +11,7 @@ One unchecked pass over weeks of material is the most common way an AI-maintaine
 
 ## 1. Inventory and plan (no writes yet)
 
-1. List every unprocessed file in the folder (default `inbox_dir`). Convert saved emails first with `python3 _system/scripts/email-to-md.py {folder}`.
+1. List every unprocessed file in the folder (default `inbox_dir`). Convert saved emails to a **temporary folder outside the vault** with `python3 _system/scripts/email-to-md.py {folder} --out {temp_dir}`, so nothing excluded is written into the vault before the `intake` scan. Delete the temporary folder when the run ends.
 2. For each file: the date **inside** it, the likely subject, its type, and a rough size.
 3. **Group by subject, oldest first.** Flag anything whose subject is unclear; those wait for the owner.
 4. **Size the batches by length, not by file count:** about 20,000 tokens per batch (roughly 15,000 words).
@@ -30,6 +30,7 @@ One unchecked pass over weeks of material is the most common way an AI-maintaine
 1. Run the normal `intake` steps for every file in the batch, **one subject per batch**.
 2. Show one combined CHANGES DETECTED for the batch and wait for approval before writing to existing files.
 3. On approval, write, then move the processed sources into the subject's `Sources/`.
+   A saved email that the `intake` scan excluded entirely is not moved or named. A partly excluded one goes through `intake` step 2: its cleaned copy is filed with `# Original withheld: contained excluded content, delete it`, and its original is never moved into `Sources/`.
 4. **Spot-check:** pick 2 facts per file you just wrote, re-read them against the source, and report what matched and what did not. Fix mismatches before going on.
 5. Run the hygiene checks on the files you wrote and report the counts.
 6. Update `_batch-progress.md`, then stop and say what the next batch is. Continue only when the owner says so (or has said "run them all", in which case still stop at any mismatch or unclear subject).
@@ -38,6 +39,7 @@ One unchecked pass over weeks of material is the most common way an AI-maintaine
 
 - Publish once at the end, if `publish_dir` is set.
 - Report: files processed, batches, facts spot-checked and how many failed, files still waiting on the owner.
+- If any saved email was excluded entirely, say once: `N saved emails in _Inbox/ were excluded; delete them from the vault yourself (they are the ones not listed above).` Never name them. Never delete them without a yes for that action. If the hygiene run reports **Withheld originals to delete**, give that count the same way: never name them, and never delete them without a yes.
 - Delete `_batch-progress.md` only when nothing is left.
 
 ## Rules

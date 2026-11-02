@@ -1,6 +1,6 @@
 ---
 name: intel-vault
-description: Run the owner's intel vault workflow (resume, wrap, intake, prep, brief, internal, review-prep, plus pack commands like risk or gainsight). Use when the owner types one of those words with or without a slash, says "catch me up", "what was I working on", "save this session", or asks to update their vault, accounts, team notes, or task list.
+description: Run the owner's intel vault workflow (resume, wrap, intake, inbox to triage email, wins-backfill, prep, brief, internal, review-prep, plus pack commands like risk or gainsight). Use when the owner types one of those words with or without a slash, says "catch me up", "what was I working on", "save this session", or asks to update their vault, accounts, team notes, or task list.
 ---
 
 # Intel vault (Claude adapter)

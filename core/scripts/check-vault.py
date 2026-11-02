@@ -14,6 +14,14 @@ Checks every .md file under the paths given (files or folders):
      email-to-md.py writes, not by file name. Intake moves both files, so any hit means a
      step was skipped. Runs on every check, whatever paths you pass. A different email with
      the same file name as a filed one would be flagged too: review each hit before deleting.
+     Withheld originals are reported separately, under "Withheld originals". When intake removes
+     excluded content from an email, the cleaned copy's header carries the line
+     "# Original withheld: contained excluded content, delete it". The original .eml or .msg
+     still holds that content and must be DELETED, never moved into Sources. A copy is also
+     treated as withheld when its body holds a removal marker such as
+     "[2 parts removed under data rules]", even if the header line is missing. Same
+     detection as above; a different message and its own count. (A copy that merely quotes
+     that phrase is flagged too: the safe direction, since the advice is to delete, not move.)
 
 Skips fenced code blocks, hidden folders, _system/, any export_*_dir folders, and any
 folder listed in `check_exclude` in config (or passed with --exclude). An entry without a
@@ -92,39 +100,64 @@ def strip_code(text):
     return out
 
 
-def original_file(path):
-    """The name in a '# Original file:' header line (first lines of an email-to-md.py copy)."""
-    marker = "# Original file: "
+REMOVAL_MARKER = re.compile(r"\[\d+ parts? removed under[^\]]*\]", re.I)
+
+
+def header_markers(path):
+    """(original file name, withheld?) for an email-to-md.py copy.
+
+    The name comes from '# Original file: ...' in the first lines. Withheld is True when the
+    header also has '# Original withheld: ...' (which intake writes when it removed excluded
+    content), or when the body holds a removal marker such as '[2 parts removed under data
+    rules]', even if the header line is missing. Either way the original still holds the
+    excluded content.
+    """
+    name, withheld = None, False
     try:
         with open(path, encoding="utf-8", errors="replace") as fh:
-            for _ in range(10):
-                line = fh.readline()
-                if not line:
-                    break
-                if line.startswith(marker):
-                    return line[len(marker):].rstrip("\r\n")
+            text = fh.read()
     except OSError:
-        pass
-    return None
+        return name, withheld
+    for line in text.splitlines()[:12]:
+        if line.startswith("# Original file: "):
+            name = line[len("# Original file: "):].rstrip("\r\n")
+        elif line.startswith("# Original withheld:"):
+            withheld = True
+    if name and not withheld and REMOVAL_MARKER.search(text):
+        withheld = True
+    return name, withheld
 
 
 def leftover_emails(root, inbox_dir, raw_dirs, skip_rel, skip_names):
-    """Emails in the inbox whose markdown copy is already in a Sources folder."""
+    """Emails in the inbox whose markdown copy is already in a Sources folder.
+
+    Returns (ordinary, withheld): paths relative to the vault. A withheld original is one whose
+    cleaned copy says 'Original withheld'; it is never to be moved, only deleted.
+    """
     inbox = os.path.join(root, inbox_dir)
     emails = []
     for d, subdirs, files in os.walk(inbox):
         subdirs[:] = [x for x in subdirs if not x.startswith(".")]
         emails += [os.path.join(d, f) for f in sorted(files) if f.lower().endswith((".eml", ".msg"))]
     if not emails:
-        return []
-    filed = set()
+        return [], []
+    filed, withheld_names = set(), set()
     for f in md_files([root], root, skip_rel, skip_names):
         rel = os.path.relpath(f, root)
         if raw_dirs & {part.lower() for part in rel.split(os.sep)[:-1]}:
-            name = original_file(f)
+            name, withheld = header_markers(f)
             if name:
                 filed.add(name)
-    return [os.path.relpath(e, root) for e in emails if os.path.basename(e) in filed]
+                if withheld:
+                    withheld_names.add(name)
+    ordinary, withheld = [], []
+    for e in emails:
+        base = os.path.basename(e)
+        if base in withheld_names:
+            withheld.append(os.path.relpath(e, root))
+        elif base in filed:
+            ordinary.append(os.path.relpath(e, root))
+    return ordinary, withheld
 
 
 def resolve(target, by_name, paths, here=""):
@@ -193,7 +226,7 @@ def main():
     targets = args or [root]
 
     counts = {"files": 0, "links": 0, "forbidden": 0, "missing": 0, "ambiguous": 0, "alias": 0, "raw": 0,
-              "leftover": 0}
+              "leftover": 0, "withheld": 0}
     findings = []
     for f in md_files(targets, root, skip_rel, skip_names):
         counts["files"] += 1
@@ -231,10 +264,15 @@ def main():
                         findings.append(f"{rel}:{n}: check alias [[{inner}]] points at '{stem}'")
 
     inbox_dir = (cfg.get("inbox_dir") or "_Inbox").strip().strip("/")
-    for rel in leftover_emails(root, inbox_dir, raw_dirs, skip_rel, skip_names):
+    ordinary, withheld = leftover_emails(root, inbox_dir, raw_dirs, skip_rel, skip_names)
+    for rel in ordinary:
         counts["leftover"] += 1
         findings.append(f"{rel}: leftover email, its markdown copy is already in a Sources folder "
                         f"(move or delete this file)")
+    for rel in withheld:
+        counts["withheld"] += 1
+        findings.append(f"{rel}: withheld original, delete this original, never move it into Sources "
+                        f"(its cleaned copy is in Sources; this file still holds the excluded content)")
 
     if not quiet:
         for line in findings:
@@ -245,10 +283,12 @@ def main():
     if skip_names or user_rel:
         print("Excluded folders: " + ", ".join(sorted(shown | user_rel)))
     print("Forbidden characters: {forbidden} | Broken links: {missing} | Ambiguous links: {ambiguous} | "
-          "Alias mismatches to review: {alias} | Leftover emails: {leftover}".format(**counts))
+          "Alias mismatches to review: {alias} | Leftover emails: {leftover} | "
+          "Withheld originals to delete: {withheld}".format(**counts))
     if not bad_chars:
         print("Note: no forbidden_chars set in _system/config.md, so no character check ran.")
-    sys.exit(1 if (counts["forbidden"] or counts["missing"] or counts["ambiguous"] or counts["leftover"]) else 0)
+    sys.exit(1 if (counts["forbidden"] or counts["missing"] or counts["ambiguous"] or counts["leftover"]
+                      or counts["withheld"]) else 0)
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ Attachments are listed by name and size, never extracted or read.
 
 Usage:
     python3 _system/scripts/email-to-md.py <file or folder> [--out <folder>] [--force]
+    (--out creates the folder if it does not exist)
     (a folder converts every .eml and .msg in it that has no markdown copy yet;
      a copy is found by the "# Original file:" line in a .md in the output folder,
      so renaming or editing the .md does not cause a reconvert. --force converts
@@ -219,6 +220,8 @@ def main():
         else:
             print("No .eml or .msg files found.")
         return
+    if out:
+        os.makedirs(out, exist_ok=True)
     done = 0
     for f in files:
         dest = convert(f, out or os.path.dirname(os.path.abspath(f)))

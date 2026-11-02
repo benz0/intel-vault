@@ -11,6 +11,7 @@ topics: []
 ## Quick Reference
 **Subjects:** ...
 **Outcome:** one line
+**Inbox run:** YYYY-MM-DD to YYYY-MM-DD   (only if the inbox workflow ran; the next run starts after this end date)
 **Files changed:** ...
 
 ## Decisions made

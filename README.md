@@ -30,6 +30,8 @@ If you run a book of accounts, you already know these:
 | **Catching up on a backlog** | `intake-batch` | Weeks of transcripts or saved emails processed in batches you approve, with a spot-check of each batch against the sources, and a checkpoint so you can stop and resume |
 | **Monday morning** | `brief` | Renewals inside 120 days, accounts gone quiet, what's in the vault but not yet in the platform |
 | **End of the day** | `wrap` | A session log, proposed status and task updates, and a prompt to log anything worth a mention at review time |
+| **Email piling up** | `inbox` | Every message in your date range sorted into one bucket (asks from your manager, needs your reply, follow-ups owed to you, win candidates, FYI) as a table. Nothing is written, sent, moved, or flagged until you say yes. Anything your data rules exclude is counted, never quoted |
+| **Old wins in a folder** | `wins-backfill` | A folder of thank-you notes and results turned into accomplishments-log entries in batches, outcome first with dates and evidence. You approve each entry |
 | **Review season** | `review-prep FY26` | Your accomplishments with dates and numbers, sourced, plus a list of where the evidence is thin |
 
 No command is required. Plain English works; the commands just load a specific checklist.
@@ -161,7 +163,7 @@ Updates replace core and pack files in `_system/`. They never touch `_system/con
 |---|---|---|
 | `cse` | Customer Success Engineers, TAMs: accounts, product relationships, renewals, risk, a customer-success platform the vault feeds but never writes to | v0.1 |
 | `se` | Sales/Solutions Engineers: opportunities, MEDDPICC, CRM updates drafted for you to paste | Planned |
-| `people-manager` | Supervisors: direct reports, 1:1s, team metrics, accounts you assist on | Planned |
+| `people-manager` | Supervisors: a folder per direct report with 1:1 notes and a retrain list, email triage buckets for escalations and retraining, a hard boundary against HR and personal matters | v0.4 (first phase) |
 | `personal-life` | Home, family admin, finances, a personal task list kept separate from work | Planned |
 
 A pack is a folder with `pack.md`, `rules/`, `workflows/`, and `templates/`. Copy `packs/cse` to start a new one.
@@ -176,7 +178,7 @@ Put anything specific to you or your employer in `_system/local/`:
 - `local/rules/30-{employer}-process.md`: your organization's actual process (risk model, field values, approval chain)
 - `local/workflows/{name}.md`: replaces a core or pack workflow of the same name, or adds a new command
 
-Local always wins, and updates never overwrite it.
+Local wins over core and packs, and updates never overwrite it. The one exception is a rule marked `HARD BOUNDARY` in core or a pack, which local rules cannot loosen.
 
 ---
 
