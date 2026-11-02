@@ -25,10 +25,12 @@ State today's date and the range you will use before reading any mail.
 Use the first one that is available, and **say which you used and what it returned** (how many messages, what date range, what fields). Do not guess at what a source can do.
 
 1. **The tool's email connector,** if it has one. Never assume it can read read/unread or flagged status. If the owner asks for flagged mail, try it, and say plainly whether the connector returned that information.
-2. **Saved `.eml` and `.msg` files in `inbox_dir`.** Run `python3 _system/scripts/email-to-md.py {inbox_dir}` first. It skips emails already converted.
+2. **Saved `.eml` and `.msg` files in `inbox_dir`.** Read them directly, or convert them to a **temporary folder outside the vault** (a system temp folder, never `inbox_dir` or any vault folder): `python3 _system/scripts/email-to-md.py {inbox_dir} --out {temp_dir}`. Without `--out` the converted copies are written into `inbox_dir`, which puts every email, including ones step 3 will skip, into the vault as a `.md` file.
 3. **Text the owner pastes.**
 
 If a source returns nothing for the range, say so. An empty result is not "nothing needs attention" unless the owner confirms the range was right.
+
+**Nothing is written to the vault in steps 1 to 5.** Delete the temporary copies as soon as you have the table, and say you did. If step 6 needs the text again, read the original `.eml` or `.msg`, or convert to a new temporary folder and delete that too.
 
 ## 3. Skip what the data rules exclude
 

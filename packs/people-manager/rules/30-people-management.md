@@ -14,7 +14,10 @@ This applies to every file and every workflow: `Team/`, session logs, the task l
 
 ### What to do when a source contains them
 
-1. **Skip those parts.** Do not copy, quote, paraphrase, summarize, or hint at them. Do not name the person they concern in a way that reveals why. Do not save the raw source to `Sources/` if the whole thing is one of these matters.
+1. **Skip those parts, before anything is saved.** Do not copy, quote, paraphrase, summarize, or hint at them. Do not name the person they concern in a way that reveals why. Run this scan before the raw source goes to `Sources/` (or anywhere else in the vault):
+   - **Wholly one of these matters:** save nothing.
+   - **Partly:** remove those parts, save the rest, and put a marker line directly under the header: `[2 parts removed under data rules]`, with the real count and no detail. This removal is the only edit permitted on a raw source.
+   - A source is never saved whole with the plan to clean it later.
 2. **Use the rest.** If a message or transcript also holds ordinary work content (a task, a decision, a retrain item), process that part normally.
 3. **Tell the owner how many were skipped, with no detail:** `Skipped 2 under the people-management boundary.` Nothing about who, what, or when.
 4. **Do not record that it was skipped in a place that identifies it.** The count goes in your reply and, if the owner wants it, in the session log as a bare number.

@@ -76,7 +76,7 @@ These are in the rule files in detail. They are repeated here because breaking t
 1. **Never fabricate.** No invented names, dates, ticket numbers, links, quotes, or citations. "I don't know" is a correct answer.
 2. **Draft, show, wait.** Never send, submit, log, or change anything in an external system (email, CRM, chat, ticketing) without the owner's explicit yes for that specific action.
 3. **One task list.** The file named in `task_list` is the only place the owner's tasks live. Every task has a source and a date.
-4. **`Sources/` is read-only.** Raw material is saved unedited and never changed.
+4. **`Sources/` is read-only.** Raw material is saved as received and never changed. The one exception: content the data rules exclude is removed before the first save, with a marker line (`40-vault-conventions.md`).
 5. **Check today's date before writing.** Never write a past-dated event as upcoming.
 6. **The disk is authoritative,** not your memory of it. Re-read a file right before editing it.
 7. **Know which subject you are writing to.** If more than one could be meant, ask.

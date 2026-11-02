@@ -13,7 +13,7 @@ Many people keep a folder of thank-you notes and results and never turn it into 
 
 1. **Choose the source** and say which you used and what it returned (how many items, what date range):
    - a mail folder through the tool's email connector (never assume it can read more than it returned),
-   - saved `.eml` and `.msg` files (run `python3 _system/scripts/email-to-md.py {folder}` first; it skips emails already converted),
+   - saved `.eml` and `.msg` files (read them directly, or convert them to a **temporary folder outside the vault**: `python3 _system/scripts/email-to-md.py {folder} --out {temp_dir}`. Without `--out` the converted copies are written next to the originals, which puts every email, including ones the data rules exclude, into the vault as a `.md` file. Delete the temporary copies when the run ends, and say you did),
    - a folder or file of notes.
 2. **Read the accomplishments log first.** Note what it already holds, so nothing is proposed twice.
 3. **Apply the data rules** (`20-data-handling.md`, `data_policy`, pack and local rules) to every item. Excluded items are **counted only:** `Skipped 2 under data rules.` Never quote, summarize, or name the sender or subject of a skipped item, and never carry its content into an entry.

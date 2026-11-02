@@ -11,7 +11,7 @@ One unchecked pass over weeks of material is the most common way an AI-maintaine
 
 ## 1. Inventory and plan (no writes yet)
 
-1. List every unprocessed file in the folder (default `inbox_dir`). Convert saved emails first with `python3 _system/scripts/email-to-md.py {folder}`.
+1. List every unprocessed file in the folder (default `inbox_dir`). Convert saved emails to a **temporary folder outside the vault** with `python3 _system/scripts/email-to-md.py {folder} --out {temp_dir}`, so nothing excluded is written into the vault before the `intake` scan. Delete the temporary folder when the run ends.
 2. For each file: the date **inside** it, the likely subject, its type, and a rough size.
 3. **Group by subject, oldest first.** Flag anything whose subject is unclear; those wait for the owner.
 4. **Size the batches by length, not by file count:** about 20,000 tokens per batch (roughly 15,000 words).

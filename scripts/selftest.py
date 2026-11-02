@@ -30,6 +30,9 @@ Builds throwaway vaults in a temp folder (nothing outside it is touched) and che
          docs/inbox-acceptance.md names every one of them (and no file that is missing).
      9e. The hard boundary is marked in the pack, the exception is in the boot order, and
          the inbox workflow carries the never-send and count-only rules.
+     9f. The conversion command written in inbox.md, run on the demo emails in a vault's
+         _Inbox, leaves the vault byte-identical (no new .md files); the same command without
+         --out does write them (control). wins-backfill, intake and intake-batch also use --out.
   8. The repo itself: no forbidden characters in tracked or new text files (except the
      signature divider), and none of the words in .git/info/banned-words, if that
      file exists. Keep that file out of the repo; it never gets committed.
@@ -303,6 +306,35 @@ def main():
         }
         bad_9e = [k for k, v in checks_9e.items() if not v]
         check("9e. hard boundary, exception, and inbox safety rules are all present", not bad_9e, "; ".join(bad_9e))
+
+        # 9f. inbox's conversion step must not write into the vault
+        m = re.search(r"python3 _system/scripts/email-to-md\.py \{inbox_dir\} --out \{temp_dir\}", inbox)
+        vault_inbox = os.path.join(pm, "_Inbox")
+        temp_out = os.path.join(tmp, "inbox-temp")
+        detail_9f = ""
+        ok_9f = False
+        if m and os.path.isdir(demo):
+            for f in emls:
+                shutil.copy(os.path.join(demo, f), vault_inbox)
+            before = snapshot(pm)
+            code, out = run(os.path.join(pm, "_system", "scripts", "email-to-md.py"), vault_inbox, "--out", temp_out)
+            after = snapshot(pm)
+            new_files = sorted(set(after) - set(before))
+            made = len([f for f in os.listdir(temp_out) if f.endswith(".md")]) if os.path.isdir(temp_out) else 0
+            # control: the old form (no --out) does write .md files into the vault
+            ctrl = os.path.join(tmp, "ctrl")
+            shutil.copytree(demo, ctrl)
+            run(os.path.join(pm, "_system", "scripts", "email-to-md.py"), ctrl)
+            ctrl_md = len([f for f in os.listdir(ctrl) if f.endswith(".md")])
+            ok_9f = code == 0 and not new_files and before == after and made == len(emls) and ctrl_md == len(emls)
+            detail_9f = f"new files in vault={new_files[:3]} converted to temp={made} control={ctrl_md} {out[-100:]}"
+        else:
+            detail_9f = "inbox.md has no `email-to-md.py {inbox_dir} --out {temp_dir}` command"
+        also = {f: "--out" in open(os.path.join(REPO, "core", "workflows", f), encoding="utf-8").read()
+                for f in ("wins-backfill.md", "intake.md", "intake-batch.md")}
+        bad_also = sorted(k for k, v in also.items() if not v)
+        check("9f. inbox conversion step leaves the vault unchanged (and wins-backfill, intake, intake-batch use --out)",
+              ok_9f and not bad_also, f"{detail_9f} missing --out in {bad_also}")
 
         # 8. repo hygiene
         # tracked files plus new files not yet added (so a check before "git add" still sees them)
